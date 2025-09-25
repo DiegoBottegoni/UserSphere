@@ -13,8 +13,8 @@ Registra un nuevo usuario, devuelve un token JWT con información básica y hace
   "password": "123456"
 }
 ```
-```
 **Response (RegisterResponseDTO)**
+```
 {
   "token": "<JWT_TOKEN>",
   "user": {
@@ -30,12 +30,17 @@ Registra un nuevo usuario, devuelve un token JWT con información básica y hace
 Loguea un usuario existente y devuelve un token JWT y datos básicos del usuario.
 
 **Request Body (LoginRequestDTO)**
+```
+
 {
   "email": "juan@mail.com",
   "password": "123456"
 }
+```
 
 **Response (LoginResponseDTO)**
+```
+
 {
   "token": "<JWT_TOKEN>",
   "user": {
@@ -46,6 +51,7 @@ Loguea un usuario existente y devuelve un token JWT y datos básicos del usuario
     "updatedAt": "2025-09-25T13:45:00.000Z"
   }
 }
+```
 
 ### 1.3 GET `/auth/me` (ruta de prueba en desarrollo)
 Devuelve información básica del usuario logueado según el token JWT.
@@ -54,6 +60,8 @@ Devuelve información básica del usuario logueado según el token JWT.
 Authorization: Bearer `<JWT_TOKEN>`
 
 **Response**
+```
+
 {
   "message": "Token válido",
   "user": {
@@ -62,6 +70,7 @@ Authorization: Bearer `<JWT_TOKEN>`
     "exp": 1758832177
   }
 }
+```
 
 ## 2. Usuarios
 
@@ -72,6 +81,8 @@ Obtiene un usuario por su ID. Ruta protegida por JWT.
 Authorization: Bearer `<JWT_TOKEN>`
 
 **Response (UserResponseDTO)**
+```
+
 {
   "id": "uuid",
   "name": "Juan",
@@ -80,6 +91,7 @@ Authorization: Bearer `<JWT_TOKEN>`
   "createdAt": "2025-09-25T13:45:00.000Z",
   "updatedAt": "2025-09-25T13:45:00.000Z"
 }
+```
 
 ### 2.2 GET `/users`
 Obtiene todos los usuarios registrados. Ruta protegida por JWT.
@@ -88,6 +100,8 @@ Obtiene todos los usuarios registrados. Ruta protegida por JWT.
 Authorization: Bearer `<JWT_TOKEN>`
 
 **Response**
+```
+
 [
   {
     "id": "uuid",
@@ -99,19 +113,25 @@ Authorization: Bearer `<JWT_TOKEN>`
   },
   ...
 ]
+```
 
 ### 2.3 POST `/users`
 Crea un nuevo usuario. Ruta protegida por JWT.
 
 **Request Body (CreateUserDTO)**
+```
+
 {
   "name": "Juan",
   "email": "juan@mail.com",
   "password": "123456",
   "isOnline": false
 }
+```
 
 **Response (UserResponseDTO)**
+```
+
 {
   "id": "uuid",
   "name": "Juan",
@@ -120,18 +140,24 @@ Crea un nuevo usuario. Ruta protegida por JWT.
   "createdAt": "2025-09-25T13:45:00.000Z",
   "updatedAt": "2025-09-25T13:45:00.000Z"
 }
+```
 
 ### 2.4 PUT `/users/:id`
 Actualiza un usuario existente. Ruta protegida por JWT.
 
 **Request Body (UpdateUserDTO)**
+```
+
 {
   "name": "Juan Updated",
   "password": "nueva_contraseña",
   "isOnline": true
 }
+```
 
 **Response (UserResponseDTO)**
+```
+
 {
   "id": "uuid",
   "name": "Juan Updated",
@@ -140,14 +166,18 @@ Actualiza un usuario existente. Ruta protegida por JWT.
   "createdAt": "2025-09-25T13:45:00.000Z",
   "updatedAt": "2025-09-25T14:00:00.000Z"
 }
+```
 
 ### 2.5 DELETE `/users/:id`
 Elimina un usuario por su ID. Ruta protegida por JWT.
 
 **Response**
+```
+
 {
   "message": "User deleted successfully"
 }
+```
 
 ## 3. DTOs
 
