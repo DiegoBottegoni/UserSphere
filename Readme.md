@@ -6,12 +6,14 @@
 Registra un nuevo usuario, devuelve un token JWT con información básica y hace login automáticamente.
 
 **Request Body (RegisterRequestDTO)**
+```
 {
   "name": "Juan",
   "email": "juan@mail.com",
   "password": "123456"
 }
-
+```
+```
 **Response (RegisterResponseDTO)**
 {
   "token": "<JWT_TOKEN>",
@@ -23,7 +25,7 @@ Registra un nuevo usuario, devuelve un token JWT con información básica y hace
     "updatedAt": "2025-09-25T13:45:00.000Z"
   }
 }
-
+```
 ### 1.2 POST `/auth/login`
 Loguea un usuario existente y devuelve un token JWT y datos básicos del usuario.
 
