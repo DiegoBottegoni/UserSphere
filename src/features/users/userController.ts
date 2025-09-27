@@ -1,9 +1,9 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { getUserById, getAllUsers, createUser, updateUser, deleteUser } from './userService';
 import { CreateUserDTO } from '../../domain/users/dto/CreateUserDTO';
 import { UpdateUserDTO } from '../../domain/users/dto/UpdateUserDTO';
 
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Missing user id' });
@@ -11,43 +11,50 @@ export const getUser = async (req: Request, res: Response) => {
     const user = await getUserById(id);
     return res.json(user);
   } catch (err: any) {
-    return res.status(404).json({ error: err.message });
+    next(err);
+    return;
   }
 };
 
-export const getUsers = async (_req: Request, res: Response) => {
+export const getUsers = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await getAllUsers();
     res.json(users);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    next(err);
+    return;
   }
 };
 
-export const createNewUser = async (req: Request, res: Response) => {
+export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data: CreateUserDTO = req.body;
     const user = await createUser(data);
     res.status(201).json(user);
   } catch (err: any) {
-    res.status(400).json({ error: err.message });
+    next(err);
+    return;
   }
 };
 
-export const updateExistingUser = async (req: Request, res: Response) => {
+export const updateExistingUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    if (!id) return res.status(400).json({ error: 'Missing user id' });
+    if (!id) {
+      res.status(400).json({ error: 'Missing user id' });
+      return;
+    }
 
     const data: UpdateUserDTO = req.body;
     const user = await updateUser(id, data);
     return res.json(user);
   } catch (err: any) {
-    return res.status(400).json({ error: err.message });
+    next(err);
+    return;
   }
 };
 
-export const removeUser = async (req: Request, res: Response) => {
+export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Missing user id' });
@@ -55,6 +62,7 @@ export const removeUser = async (req: Request, res: Response) => {
     await deleteUser(id);
     return res.status(204).send();
   } catch (err: any) {
-    return res.status(400).json({ error: err.message });
+    next(err);
+    return;
   }
 };
