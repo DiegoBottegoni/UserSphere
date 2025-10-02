@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String       @id @default(uuid())
+  name                String
+  email               String       @unique
+  passwordHash        String
+  isOnline            Boolean      @default(false)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @default(now()) @updatedAt
+  friendshipsSent     Friendship[] @relation("requester")
+  friendshipsReceived Friendship[] @relation("receiver")
+  messagesSent        Message[]    @relation("sender")
+  messagesReceived    Message[]    @relation("receiver")
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requester   User             @relation("requester", fields: [requesterId], references: [id])
+  requesterId String
+  receiver    User             @relation("receiver", fields: [receiverId], references: [id])
+  receiverId  String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  sender     User     @relation("sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}

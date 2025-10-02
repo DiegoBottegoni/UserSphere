@@ -1,6 +1,27 @@
+# Node
 node_modules
-# Keep environment variables out of version control
-.env
+dist
+build
 
-/generated/prisma
-/prisma
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Prisma SQLite (por si alguna vez usás SQLite en dev/testing)
+prisma/*.db
+prisma/*.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker volumes (nunca commitear datos de Postgres locales)
+postgres_data/
+
+# OS files
+.DS_Store
+Thumbs.db
