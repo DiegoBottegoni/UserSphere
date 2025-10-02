@@ -12,6 +12,13 @@ export const errorHandler = (
   _next: NextFunction
 ) => {
   console.error('🔥 Error caught by middleware:', err);
+  console.error('🔥 Error details:', {
+  message: err.message,
+  code: err.code,
+  name: err.name,
+  stack: err.stack,
+});
+
 
   // ---------- Prisma Known Request Errors ----------
   if (err.code) {
