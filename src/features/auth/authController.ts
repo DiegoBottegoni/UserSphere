@@ -1,10 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
-import { registerUser, loginUser } from './authService';
+import { registerUser, loginUser, logoutUser } from './authService';
+import { AppError } from '../../infrastructure/errors/AppError';
+import type { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
-  const { name, email, password } = req.body;
   try {
-    const response = await registerUser(name, email, password);
+    const { name, email, password } = req.body;
+    const response: RegisterResponseDTO = await registerUser(name, email, password);
     res.status(201).json(response);
   } catch (err: any) {
     next(err);
@@ -12,10 +14,22 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 };
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
-  const { email, password } = req.body;
   try {
-    const response = await loginUser(email, password);
+    const { email, password } = req.body;
+    const response: LoginResponseDTO = await loginUser(email, password);
     res.json(response);
+  } catch (err: any) {
+    next(err);
+  }
+};
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user?.id;
+    if (!userId) throw new AppError(401, 'User not authenticated');
+
+    await logoutUser(userId);
+    res.json({ message: 'Logout successful' });
   } catch (err: any) {
     next(err);
   }

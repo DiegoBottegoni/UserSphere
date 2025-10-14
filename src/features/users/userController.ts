@@ -1,7 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getUserById, getAllUsers, createUser, updateUser, deleteUser } from './userService';
-import { CreateUserDTO } from '../../domain/users/dto/CreateUserDTO';
-import { UpdateUserDTO } from '../../domain/users/dto/UpdateUserDTO';
+import { CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {

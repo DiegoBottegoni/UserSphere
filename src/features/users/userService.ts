@@ -1,7 +1,5 @@
 import { prisma } from '../../infrastructure/prisma/client';
-import { UserResponseDTO } from '../../domain/users/dto/UserResponseDTO';
-import { CreateUserDTO } from '../../domain/users/dto/CreateUserDTO';
-import { UpdateUserDTO } from '../../domain/users/dto/UpdateUserDTO';
+import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
 import bcrypt from 'bcryptjs';
 
 export const getUserById = async (id: string): Promise<UserResponseDTO> => {
@@ -15,6 +13,9 @@ export const getUserById = async (id: string): Promise<UserResponseDTO> => {
     isOnline: user.isOnline,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
   };
 };
 
@@ -27,6 +28,9 @@ export const getAllUsers = async (): Promise<UserResponseDTO[]> => {
     isOnline: user.isOnline,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
   }));
 };
 
@@ -50,6 +54,9 @@ export const createUser = async (data: CreateUserDTO): Promise<UserResponseDTO> 
     isOnline: user.isOnline,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
   };
 };
 
@@ -64,7 +71,10 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
 
   const user = await prisma.user.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+      profileUpdatedAt: new Date(),
+    },
   });
 
   return {
@@ -74,6 +84,9 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
     isOnline: user.isOnline,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
   };
 };
 

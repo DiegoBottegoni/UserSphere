@@ -4,5 +4,10 @@ export interface LoginResponseDTO {
     id: string;
     name: string;
     email: string;
+    isOnline: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    lastLoginAt: Date | null;
+    lastSeenAt: Date | null;
   };
 }

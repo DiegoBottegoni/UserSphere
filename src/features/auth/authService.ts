@@ -1,8 +1,8 @@
 import { prisma } from '../../infrastructure/prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { LoginResponseDTO } from '../../domain/auth/dto/LoginResponseDTO';
-import { RegisterResponseDTO } from '../../domain/auth/dto/RegisterResponseDTO';
+import { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
+import { UserResponseDTO } from '../../domain/users/dto';
 import { AppError } from '../../infrastructure/errors/AppError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_to_a_strong_secret';
@@ -31,6 +31,11 @@ export const registerUser = async (
       id: user.id,
       name: user.name,
       email: user.email,
+      isOnline: user.isOnline,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      lastLoginAt: user.lastLoginAt,
+      lastSeenAt: user.lastSeenAt,
     },
   };
 };
@@ -50,14 +55,25 @@ export const loginUser = async (
       throw new AppError(401, 'Invalid password');
     }
 
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+    const updatedUser = await updateUserStatus(user.id, {
+      isOnline: true,
+      lastLoginAt: new Date(),
+      lastSeenAt: new Date(),
+    });
+
+    const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
 
     return {
       token,
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        isOnline: updatedUser.isOnline,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+        lastLoginAt: updatedUser.lastLoginAt,
+        lastSeenAt: updatedUser.lastSeenAt,
       },
     };
   } catch (err: any) {
@@ -67,6 +83,45 @@ export const loginUser = async (
     throw err;
   }
 }
+
+export const updateUserStatus = async (id: string, status: {
+  isOnline?: boolean;
+  lastLoginAt?: Date | null;
+  lastSeenAt?: Date | null;
+}): Promise<UserResponseDTO> => {
+  const user = await prisma.user.update({
+    where: { id },
+    data: { ...status },
+  });
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isOnline: user.isOnline,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
+  };
+};
+
+
+export const logoutUser = async (userId: string): Promise<void> => {
+  try {
+    // Usamos updateUserStatus para mantener consistencia
+    await updateUserStatus(userId, {
+      isOnline: false,
+      lastSeenAt: new Date(),
+    });
+  } catch (err: any) {
+    if (err.name === 'PrismaClientInitializationError') {
+      throw new AppError(503, 'Database unavailable');
+    }
+    throw err;
+  }
+};
 
 
 export const verifyToken = (token: string) => {

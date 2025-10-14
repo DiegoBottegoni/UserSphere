@@ -19,8 +19,11 @@ model User {
   email               String       @unique
   passwordHash        String
   isOnline            Boolean      @default(false)
+  lastLoginAt         DateTime? // nullable
+  lastSeenAt          DateTime? // nullable
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @default(now()) @updatedAt
+  profileUpdatedAt    DateTime? // nullable
   friendshipsSent     Friendship[] @relation("requester")
   friendshipsReceived Friendship[] @relation("receiver")
   messagesSent        Message[]    @relation("sender")
