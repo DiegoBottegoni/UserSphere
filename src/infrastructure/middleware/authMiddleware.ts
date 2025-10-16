@@ -12,7 +12,7 @@ interface JwtPayload {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
-export const authMiddleware = async (
+export const verifyUserSession = async (
   req: Request,
   res: Response,
   next: NextFunction
