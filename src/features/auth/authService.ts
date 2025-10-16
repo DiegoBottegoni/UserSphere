@@ -5,7 +5,7 @@ import { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
 import { UserResponseDTO } from '../../domain/users/dto';
 import { AppError } from '../../infrastructure/errors/AppError';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this_to_a_strong_secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 
 export const loginUser = async (
   email: string,
@@ -122,7 +122,6 @@ export const updateUserStatus = async (id: string, status: {
 
 export const logoutUser = async (userId: string): Promise<void> => {
   try {
-    // Usamos updateUserStatus para mantener consistencia
     await updateUserStatus(userId, {
       isOnline: false,
       lastSeenAt: new Date(),
