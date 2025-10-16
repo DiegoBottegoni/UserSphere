@@ -7,39 +7,6 @@ import { AppError } from '../../infrastructure/errors/AppError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_to_a_strong_secret';
 
-export const registerUser = async (
-  name: string,
-  email: string,
-  password: string
-): Promise<RegisterResponseDTO> => {
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: hashedPassword,
-    },
-  });
-
-  // Token para login automático
-  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-
-  return {
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      isOnline: user.isOnline,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      lastLoginAt: user.lastLoginAt,
-      lastSeenAt: user.lastSeenAt,
-    },
-  };
-};
-
 export const loginUser = async (
   email: string,
   password: string
@@ -83,6 +50,51 @@ export const loginUser = async (
     throw err;
   }
 }
+
+export const registerUser = async (
+  name: string,
+  email: string,
+  password: string
+): Promise<RegisterResponseDTO> => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash: hashedPassword,
+    },
+  });
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) throw new AppError(404, 'User not found after registration');
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      isOnline: true,
+      lastLoginAt: new Date(),
+      lastSeenAt: new Date(),
+    },
+  });
+
+  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+  const updatedUser = await prisma.user.findUnique({ where: { id: user.id } });
+
+  return {
+    token,
+    user: {
+      id: updatedUser!.id,
+      name: updatedUser!.name,
+      email: updatedUser!.email,
+      isOnline: updatedUser!.isOnline,
+      createdAt: updatedUser!.createdAt,
+      updatedAt: updatedUser!.updatedAt,
+      lastLoginAt: updatedUser!.lastLoginAt,
+      lastSeenAt: updatedUser!.lastSeenAt,
+    },
+  };
+};
 
 export const updateUserStatus = async (id: string, status: {
   isOnline?: boolean;
