@@ -1,3 +1,7 @@
+// Middleware to validate session based on JWT token
+// Authenticate JWT tokens and attach user to request
+// 3 functionalities: verify token, fetch user using id, update lastSeenAt
+
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../prisma/client';
