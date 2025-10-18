@@ -1,6 +1,7 @@
 import express from 'express';
 import authRoutes from './features/auth/authRoutes';
 import userRoutes from './features/users/userRoutes';
+import friendshipRoutes from './features/friendships/friendshipRoutes';
 import dotenv from 'dotenv';
 import { errorHandler } from './infrastructure/middleware/errorHandler';
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/friendships', friendshipRoutes);
 
 app.use(errorHandler);
 
