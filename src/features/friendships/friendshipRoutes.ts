@@ -13,8 +13,8 @@ const router = Router();
 
 router.post('/:receiverId', verifyUserSession, sendRequest); // working
 router.put('/:friendshipId/accept', verifyUserSession, acceptRequest); // working
-router.put('/:friendshipId/reject', verifyUserSession, rejectFriendRequest); // it works but crash the bbdd
-router.put('/:friendshipId/block', verifyUserSession, blockUser); // need to fix it to use the user id instead of friendshipId
+router.patch('/:friendshipId/reject', verifyUserSession, rejectFriendRequest); // working
+router.patch('/:friendshipId/block', verifyUserSession, blockUser); // need to fix it to use the user id instead of friendshipId
 router.get('/pending', verifyUserSession, getPendingRequests); // working
 router.get('/', verifyUserSession, getAllFriends); // working
 
