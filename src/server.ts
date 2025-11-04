@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './features/auth/authRoutes';
 import userRoutes from './features/users/userRoutes';
 import friendshipRoutes from './features/friendships/friendshipRoutes';
+import messageRoutes from './features/messages/messageRoutes';
 
 import { errorHandler } from './infrastructure/middleware/errorHandler';
 
@@ -15,11 +16,12 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/friendships', friendshipRoutes);
+app.use('/api/v1/messages', messageRoutes);
 
 app.use(errorHandler);
 
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 app.get('/', (_req, res) => {
   res.send('Hello to UserSphere user management API!');
