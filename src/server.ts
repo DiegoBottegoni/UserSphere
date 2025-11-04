@@ -1,10 +1,11 @@
 import express from 'express';
+import dotenv from 'dotenv';
+
 import authRoutes from './features/auth/authRoutes';
 import userRoutes from './features/users/userRoutes';
 import friendshipRoutes from './features/friendships/friendshipRoutes';
-import dotenv from 'dotenv';
-import { errorHandler } from './infrastructure/middleware/errorHandler';
 
+import { errorHandler } from './infrastructure/middleware/errorHandler';
 
 dotenv.config();
 
@@ -25,5 +26,5 @@ app.get('/', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port http://localhost:${PORT}`);
 });
