@@ -11,9 +11,9 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/friendships', friendshipRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/friendships', friendshipRoutes);
 
 app.use(errorHandler);
 
@@ -21,7 +21,7 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 4000;
 
 app.get('/', (_req, res) => {
-  res.send('Hello, world!');
+  res.send('Hello to UserSphere user management API!');
 });
 
 app.listen(PORT, () => {
