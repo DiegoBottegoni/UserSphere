@@ -39,9 +39,14 @@ export const createNewUser = async (req: Request, res: Response, next: NextFunct
 export const updateExistingUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const userIdFromToken = req.user?.id;
+
     if (!id) {
-      res.status(400).json({ error: 'Missing user id' });
-      return;
+      return res.status(400).json({ error: 'Missing user id' });
+    }
+
+    if (userIdFromToken !== id) {
+      return res.status(403).json({ error: 'You are not authorized to update this user' });
     }
 
     const data: UpdateUserDTO = req.body;
@@ -52,6 +57,7 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
     return;
   }
 };
+
 
 export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
