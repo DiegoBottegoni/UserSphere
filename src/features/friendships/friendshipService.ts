@@ -6,7 +6,6 @@ export const sendRequest = async (requesterId: string, receiverId: string) => {
   if (requesterId === receiverId) {
     throw new Error('You cannot send a friendship request to yourself.');
   }
-
   return friendshipRepository.sendRequest(requesterId, receiverId);
 };
 
@@ -15,7 +14,7 @@ export const acceptRequest = async (friendshipId: string) => {
 };
 
 export const rejectFriendRequest = async (friendshipId: string) => {
-  return await friendshipRepository.rejectRequest(friendshipId);
+  return friendshipRepository.rejectRequest(friendshipId);
 };
 
 export const blockUser = async (friendshipId: string) => {
@@ -24,6 +23,10 @@ export const blockUser = async (friendshipId: string) => {
 
 export const getPendingRequests = async (userId: string) => {
   return friendshipRepository.getPendingRequests(userId);
+};
+
+export const getSentRequests = async (userId: string) => {
+  return friendshipRepository.getSentRequests(userId);
 };
 
 export const getAllFriends = async (userId: string) => {

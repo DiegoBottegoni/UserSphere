@@ -6,16 +6,18 @@ import {
   rejectFriendRequest,
   blockUser,
   getPendingRequests,
+  getSentRequests,
   getAllFriends,
 } from './friendshipController';
 
 const router = Router();
 
-router.post('/:receiverId', verifyUserSession, sendRequest); // working
-router.put('/:friendshipId/accept', verifyUserSession, acceptRequest); // working
-router.patch('/:friendshipId/reject', verifyUserSession, rejectFriendRequest); // working
-router.patch('/:friendshipId/block', verifyUserSession, blockUser); // need to fix it to use the user id instead of friendshipId
-router.get('/pending', verifyUserSession, getPendingRequests); // working
-router.get('/', verifyUserSession, getAllFriends); // working
+router.post('/:receiverId', verifyUserSession, sendRequest);
+router.put('/:friendshipId/accept', verifyUserSession, acceptRequest);
+router.patch('/:friendshipId/reject', verifyUserSession, rejectFriendRequest);
+router.patch('/:friendshipId/block', verifyUserSession, blockUser);
+router.get('/pending', verifyUserSession, getPendingRequests);
+router.get('/pending/sent', verifyUserSession, getSentRequests);
+router.get('/', verifyUserSession, getAllFriends);
 
 export default router;
