@@ -56,7 +56,13 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
 export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const userIdFromToken = req.user?.id;
+
     if (!id) return res.status(400).json({ error: 'Missing user id' });
+
+    if (userIdFromToken !== id) {
+      return res.status(403).json({ error: 'You are not authorized to delete this user' });
+    }
 
     await deleteUser(id);
     return res.status(204).send();
@@ -65,3 +71,4 @@ export const removeUser = async (req: Request, res: Response, next: NextFunction
     return;
   }
 };
+
