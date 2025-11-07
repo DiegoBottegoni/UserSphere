@@ -21,14 +21,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
     });
   }
 
-  // async rejectRequest(friendshipId: string): Promise<void> {
-  //   await prisma.friendship.delete({
-  //     where: { id: friendshipId },
-  //   });
-  // }
-
   async rejectRequest(friendshipId: string): Promise<void> {
-    // 1️⃣ Buscar la friendship antes de eliminarla
     const friendship = await prisma.friendship.findUnique({
       where: { id: friendshipId },
     });
@@ -39,7 +32,6 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
 
     const { requesterId, receiverId } = friendship;
 
-    // 2️⃣ Eliminar todos los mensajes entre ambos usuarios
     await prisma.message.deleteMany({
       where: {
         OR: [
@@ -49,7 +41,6 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
       },
     });
 
-    // 3️⃣ Eliminar la friendship
     await prisma.friendship.delete({
       where: { id: friendshipId },
     });

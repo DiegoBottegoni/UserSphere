@@ -26,19 +26,6 @@ export const acceptRequest = async (req: Request, res: Response) => {
   }
 };
 
-// export const rejectFriendRequest = async (req: Request, res: Response) => {
-//   try {
-//     const { friendshipId } = req.params;
-//     if (!friendshipId) return res.status(400).json({ message: 'Missing friendshipId' });
-
-//     const friendship = await friendshipService.rejectFriendRequest(friendshipId);
-//     return res.status(200).json(friendship);
-//   } catch (error) {
-//     console.error('Error rejecting friend request:', error);
-//     return res.status(500).json({ message: 'Internal server error' });
-//   }
-// };
-
 export const rejectFriendRequest = async (req: Request, res: Response) => {
   try {
     const { friendshipId } = req.params;
