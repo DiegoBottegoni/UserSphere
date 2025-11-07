@@ -13,8 +13,12 @@ export const acceptRequest = async (friendshipId: string) => {
   return friendshipRepository.acceptRequest(friendshipId);
 };
 
-export const rejectFriendRequest = async (friendshipId: string) => {
-  return friendshipRepository.rejectRequest(friendshipId);
+// export const rejectFriendRequest = async (friendshipId: string) => {
+//   return friendshipRepository.rejectRequest(friendshipId);
+// };
+
+export const rejectFriendRequest = async (friendshipId: string): Promise<void> => {
+  await friendshipRepository.rejectRequest(friendshipId);
 };
 
 export const blockUser = async (friendshipId: string) => {

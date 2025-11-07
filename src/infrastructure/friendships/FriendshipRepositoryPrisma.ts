@@ -21,13 +21,40 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
     });
   }
 
+  // async rejectRequest(friendshipId: string): Promise<void> {
+  //   await prisma.friendship.delete({
+  //     where: { id: friendshipId },
+  //   });
+  // }
+
   async rejectRequest(friendshipId: string): Promise<void> {
-  await prisma.friendship.delete({
-    where: { id: friendshipId },
-  });
-}
+    // 1️⃣ Buscar la friendship antes de eliminarla
+    const friendship = await prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
 
+    if (!friendship) {
+      throw new Error('Friendship not found');
+    }
 
+    const { requesterId, receiverId } = friendship;
+
+    // 2️⃣ Eliminar todos los mensajes entre ambos usuarios
+    await prisma.message.deleteMany({
+      where: {
+        OR: [
+          { senderId: requesterId, receiverId: receiverId },
+          { senderId: receiverId, receiverId: requesterId },
+        ],
+      },
+    });
+
+    // 3️⃣ Eliminar la friendship
+    await prisma.friendship.delete({
+      where: { id: friendshipId },
+    });
+  }
+  
   async blockUser(friendshipId: string): Promise<Friendship> {
     return prisma.friendship.update({
       where: { id: friendshipId },
