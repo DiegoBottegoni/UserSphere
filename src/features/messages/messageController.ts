@@ -36,13 +36,21 @@ export const getConversation = async (req: Request, res: Response) => {
 export const markAsRead = async (req: Request, res: Response) => {
   try {
     const { messageId } = req.params;
+    const userId = req.user?.id; // Asumiendo que tenés auth middleware que agrega el userId
+
     if (!messageId) {
       return res.status(400).json({ message: 'Message ID is required' });
     }
-    const message = await messageService.markAsRead(messageId);
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const message = await messageService.markAsRead(messageId, userId);
     return res.json(message);
   } catch (error) {
-    return res.status(500).json({ message: 'Error marking message as read' });
+    console.error(error);
+    return res.status(400).json({ message: (error as Error).message });
   }
 };
 

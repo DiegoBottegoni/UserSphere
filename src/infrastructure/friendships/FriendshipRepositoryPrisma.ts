@@ -21,12 +21,12 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
     });
   }
 
-  async rejectRequest(friendshipId: string): Promise<Friendship> {
-    return prisma.friendship.update({
-      where: { id: friendshipId },
-      data: { status: FriendshipStatus.REJECTED },
-    });
-  }
+  async rejectRequest(friendshipId: string): Promise<void> {
+  await prisma.friendship.delete({
+    where: { id: friendshipId },
+  });
+}
+
 
   async blockUser(friendshipId: string): Promise<Friendship> {
     return prisma.friendship.update({

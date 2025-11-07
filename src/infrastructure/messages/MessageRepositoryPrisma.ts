@@ -28,6 +28,12 @@ export class MessageRepositoryPrisma implements MessageRepository {
     });
   }
 
+  async findById(messageId: string): Promise<Message | null> {
+    return prisma.message.findUnique({
+      where: { id: messageId },
+    });
+  }
+
   async deleteMessage(messageId: string): Promise<void> {
     await prisma.message.delete({ where: { id: messageId } });
   }
