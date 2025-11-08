@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as messageService from './messageService';
+import { io } from '../../server';
 
 export const sendMessage = async (req: Request, res: Response) => {
   try {
@@ -11,8 +12,12 @@ export const sendMessage = async (req: Request, res: Response) => {
     }
 
     const message = await messageService.sendMessage(senderId, receiverId, content);
+
+    io.emit('message:new', message);
+
     return res.status(201).json(message);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Error sending message' });
   }
 };
@@ -29,6 +34,7 @@ export const getConversation = async (req: Request, res: Response) => {
     const messages = await messageService.getConversation(userId, otherUserId);
     return res.json(messages);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Error fetching conversation' });
   }
 };
@@ -62,6 +68,9 @@ export const markAsRead = async (req: Request, res: Response) => {
     }
 
     const message = await messageService.markAsRead(messageId, userId);
+
+    io.emit('message:read', { messageId, readerId: userId });
+
     return res.json(message);
   } catch (error) {
     console.error(error);
@@ -75,9 +84,14 @@ export const deleteMessage = async (req: Request, res: Response) => {
     if (!messageId) {
       return res.status(400).json({ message: 'Message ID is required' });
     }
+
     await messageService.deleteMessage(messageId);
+
+    io.emit('message:deleted', { messageId });
+
     return res.json({ message: 'Message deleted' });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Error deleting message' });
   }
 };
