@@ -3,6 +3,7 @@ import { verifyUserSession } from '../../infrastructure/middleware/authMiddlewar
 import {
   sendMessage,
   getConversation,
+  getLastMessages,
   markAsRead,
   deleteMessage,
 } from './messageController';
@@ -10,6 +11,7 @@ import {
 const router = Router();
 
 router.post('/', verifyUserSession, sendMessage);
+router.get('/last', verifyUserSession, getLastMessages);
 router.get('/:otherUserId', verifyUserSession, getConversation);
 router.patch('/:messageId/read', verifyUserSession, markAsRead);
 router.delete('/:messageId', verifyUserSession, deleteMessage);

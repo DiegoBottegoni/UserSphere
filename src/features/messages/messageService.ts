@@ -10,6 +10,10 @@ export const getConversation = async (userId: string, otherUserId: string) => {
   return await messageRepo.getConversation(userId, otherUserId);
 };
 
+export const getLastMessages = async (userId: string) => {
+  return await messageRepo.getLastMessages(userId);
+};
+
 export const markAsRead = async (messageId: string, userId: string) => {
   const message = await messageRepo.findById(messageId);
 

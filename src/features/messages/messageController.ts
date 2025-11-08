@@ -33,10 +33,25 @@ export const getConversation = async (req: Request, res: Response) => {
   }
 };
 
+export const getLastMessages = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const lastMessages = await messageService.getLastMessages(userId);
+    return res.json(lastMessages);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error fetching last messages' });
+  }
+};
+
 export const markAsRead = async (req: Request, res: Response) => {
   try {
     const { messageId } = req.params;
-    const userId = req.user?.id; // Asumiendo que tenés auth middleware que agrega el userId
+    const userId = req.user?.id;
 
     if (!messageId) {
       return res.status(400).json({ message: 'Message ID is required' });
