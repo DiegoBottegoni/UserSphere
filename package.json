@@ -39,6 +39,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "@types/socket.io": "^3.0.1",
+    "postman-collection-to-html": "^1.2.0",
     "prisma": "^6.16.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",

@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
 import { Server as SocketIOServer } from 'socket.io';
 
 import authRoutes from './features/auth/authRoutes';
@@ -35,7 +36,6 @@ export const io = new SocketIOServer(server, {
 
 setupSocket(io);
 
-// ✅ Rutas de la API
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/friendships', friendshipRoutes);
@@ -43,8 +43,10 @@ app.use('/api/v1/messages', messageRoutes);
 
 app.use(errorHandler);
 
+app.use('/docs', express.static(path.join(__dirname, '../docs')));
+
 app.get('/', (_req, res) => {
-  res.send('Hello to UserSphere user management API!');
+  res.sendFile(path.join(__dirname, '../docs/api-docs.html'));
 });
 
 const PORT = process.env.PORT || 3000;

@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UserSphere v1 API - API Documentation</title>
+    <style>
+        :root {
+            --primary-color: #4a6ee0;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .header-text {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .header-logo {
+            flex-shrink: 0;
+        }
+        
+        .logo {
+            height: 80px;
+            width: auto;
+            max-width: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo svg {
+            height: 100%;
+            width: auto;
+            max-width: 100%;
+        }
+        
+        .generation-date {
+            color: var(--secondary-color);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            margin-top: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        null
+  
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        pre {
+            background-color: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        code {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+            font-size: 0.9em;
+            padding: 0.2em 0.4em;
+            background-color: var(--light-bg);
+            border-radius: 3px;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            flex: 0 0 300px;
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        
+        .content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .toc {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 15px;
+            background-color: var(--light-bg);
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            border-bottom: none;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 15px;
+        }
+        
+        .toc li {
+            margin: 5px 0;
+        }
+        
+        .endpoint {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .http-method {
+            padding: 5px 10px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 10px;
+        }
+        
+        .http-method.get {
+            background-color: var(--info-color);
+        }
+        
+        .http-method.post {
+            background-color: var(--success-color);
+        }
+        
+        .http-method.put {
+            background-color: var(--warning-color);
+            color: #212529;
+        }
+        
+        .http-method.delete {
+            background-color: var(--danger-color);
+        }
+        
+        .url-path {
+            font-family: monospace;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+        
+        .endpoint-details {
+            margin-top: 15px;
+        }
+        
+        .params-section {
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--light-bg);
+            font-weight: 600;
+        }
+        
+        .folder-description {
+            margin-bottom: 20px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+        
+        .badge-required {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .response-example {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        
+        .response-example h6 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        
+        .response-example pre {
+            margin-top: 10px;
+            background-color: white;
+        }
+        
+        .response-body {
+            position: relative;
+        }
+        
+        .response-body.collapsed pre {
+            max-height: 240px;
+            overflow: hidden;
+        }
+        
+        .response-body.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, white);
+            pointer-events: none;
+        }
+        
+        .expand-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .expand-button:hover {
+            background-color: #3654b8;
+        }
+        
+        .expand-button.expanded {
+            background-color: var(--secondary-color);
+        }
+        
+        .expand-button.expanded:hover {
+            background-color: #545b62;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                flex: 0 0 100%;
+                margin-bottom: 30px;
+                position: static;
+                max-height: none;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-text {
+                order: 2;
+            }
+            
+            .header-logo {
+                order: 1;
+            }
+            
+            .logo {
+                height: 60px;
+            }
+            
+            .logo svg {
+                height: 100%;
+                width: auto;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-text">
+                <h1>UserSphere v1 API</h1>
+                <div class="generation-date">Documentation generated on 10/11/2025</div>
+            </div>
+            
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="toc">
+                <h2>Table of Contents</h2>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#folder-users">Users</a><ul><li><a href="#endpoint-users-user-get-by-id">User Get by ID</a></li><li><a href="#endpoint-users-user-get-all-users">User Get All Users</a></li><li><a href="#endpoint-users-user-update">User Update</a></li><li><a href="#endpoint-users-user-create">User Create</a></li><li><a href="#endpoint-users-user-delete">User Delete</a></li></ul></li><li><a href="#folder-auth">Auth</a><ul><li><a href="#endpoint-auth-auth-register-user">Auth Register User</a></li><li><a href="#endpoint-auth-auth-login-user">Auth Login User</a></li><li><a href="#endpoint-auth-auth-logout-user">Auth Logout User</a></li></ul></li><li><a href="#folder-friendship">Friendship</a><ul><li><a href="#endpoint-friendship-get-all-pendings-recived">Get All Pendings Recived</a></li><li><a href="#endpoint-friendship-get-all-pendings-sended">Get All Pendings Sended</a></li><li><a href="#endpoint-friendship-get-all-friends">Get All Friends</a></li><li><a href="#endpoint-friendship-send-to-friendid">Send to FriendId</a></li><li><a href="#endpoint-friendship-acept-by-friendshipid">Acept by FriendshipId</a></li><li><a href="#endpoint-friendship-reject-by-friendshipid">Reject by FriendshipId</a></li><li><a href="#endpoint-friendship-block-by-friendshipid">Block by FriendshipId</a></li></ul></li><li><a href="#folder-messages">Messages</a><ul><li><a href="#endpoint-messages-get-conversation">Get Conversation</a></li><li><a href="#endpoint-messages-send-message">Send Message</a></li><li><a href="#endpoint-messages-mark-as-read">Mark as Read</a></li><li><a href="#endpoint-messages-delete-message">Delete Message</a></li></ul></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content">
+            <section id="overview">
+                <p>No description available.</p>
+            </section>
+            
+            <section id="folder-users">
+    <h2>Users</h2><div class="endpoint" id="endpoint-users-user-get-by-id">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/users/:id</span>
+    </div>
+    
+    <h3>User Get by ID</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-users-user-get-all-users">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/users/</span>
+    </div>
+    
+    <h3>User Get All Users</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-users-user-update">
+    <div class="endpoint-header">
+      <span class="http-method put">PUT</span>
+      <span class="url-path">/users/:id</span>
+    </div>
+    
+    <h3>User Update</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+      <h4>Query Parameters</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+        <td>Content-Type</td>
+        <td>application/json</td>
+        <td></td>
+      </tr></tbody>
+      </table>
+    </div><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{
+  "name": "Example",
+  "email": "example@example.com",
+  "password": "1234"
+}
+</code></pre>
+      </div></div>
+  </div><div class="endpoint" id="endpoint-users-user-create">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/users/</span>
+    </div>
+    
+    <h3>User Create</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+      <h5>Headers</h5>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+        <td>Content-Type</td>
+        <td>application/json</td>
+      </tr></tbody>
+      </table>
+    </div><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{
+  "name": "Example",
+  "email": "example@example.com",
+  "password": "1234"
+}
+</code></pre>
+      </div></div>
+  </div><div class="endpoint" id="endpoint-users-user-delete">
+    <div class="endpoint-header">
+      <span class="http-method delete">DELETE</span>
+      <span class="url-path">/users/:id</span>
+    </div>
+    
+    <h3>User Delete</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div></section><section id="folder-auth">
+    <h2>Auth</h2><div class="endpoint" id="endpoint-auth-auth-register-user">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/auth/register</span>
+    </div>
+    
+    <h3>Auth Register User</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{ 
+    "name": "Example",
+    "email": "example@example.com",
+    "password": "1234"
+}</code></pre>
+      </div></div>
+  </div><div class="endpoint" id="endpoint-auth-auth-login-user">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/auth/login</span>
+    </div>
+    
+    <h3>Auth Login User</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{ 
+    "email": "example@example.com",
+    "password": "1234"
+}</code></pre>
+      </div></div>
+  </div><div class="endpoint" id="endpoint-auth-auth-logout-user">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/auth/logout</span>
+    </div>
+    
+    <h3>Auth Logout User</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div></section><section id="folder-friendship">
+    <h2>Friendship</h2><div class="endpoint" id="endpoint-friendship-get-all-pendings-recived">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/friendships/pending</span>
+    </div>
+    
+    <h3>Get All Pendings Recived</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-friendship-get-all-pendings-sended">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/friendships/pending/sent</span>
+    </div>
+    
+    <h3>Get All Pendings Sended</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-friendship-get-all-friends">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/friendships/</span>
+    </div>
+    
+    <h3>Get All Friends</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-friendship-send-to-friendid">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/friendships/:friendId</span>
+    </div>
+    
+    <h3>Send to FriendId</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-friendship-acept-by-friendshipid">
+    <div class="endpoint-header">
+      <span class="http-method put">PUT</span>
+      <span class="url-path">/friendships/:friendshipId/accept</span>
+    </div>
+    
+    <h3>Acept by FriendshipId</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-friendship-reject-by-friendshipid">
+    <div class="endpoint-header">
+      <span class="http-method patch">PATCH</span>
+      <span class="url-path">/friendships/:friendshipId/reject</span>
+    </div>
+    
+    <h3>Reject by FriendshipId</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+      <h5>Headers</h5>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+        <td>Content-Type</td>
+        <td>application/json</td>
+      </tr></tbody>
+      </table>
+    </div></div>
+  </div><div class="endpoint" id="endpoint-friendship-block-by-friendshipid">
+    <div class="endpoint-header">
+      <span class="http-method patch">PATCH</span>
+      <span class="url-path">/friendship/reject</span>
+    </div>
+    
+    <h3>Block by FriendshipId</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{
+  "friendshipId": "<id_de_la_solicitud>"
+}</code></pre>
+      </div></div>
+  </div></section><section id="folder-messages">
+    <h2>Messages</h2><div class="endpoint" id="endpoint-messages-get-conversation">
+    <div class="endpoint-header">
+      <span class="http-method get">GET</span>
+      <span class="url-path">/messages/:messageId</span>
+    </div>
+    
+    <h3>Get Conversation</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-messages-send-message">
+    <div class="endpoint-header">
+      <span class="http-method post">POST</span>
+      <span class="url-path">/messages/</span>
+    </div>
+    
+    <h3>Send Message</h3>
+    
+    
+    
+    <div class="endpoint-details"><div class="params-section">
+        <h4>Request Body</h4>
+        <pre><code class="language-json">{
+    "receiverId": ":receiverId",
+    "content": "Hello there!"
+}</code></pre>
+      </div></div>
+  </div><div class="endpoint" id="endpoint-messages-mark-as-read">
+    <div class="endpoint-header">
+      <span class="http-method patch">PATCH</span>
+      <span class="url-path">/messages/:messageId/read</span>
+    </div>
+    
+    <h3>Mark as Read</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div><div class="endpoint" id="endpoint-messages-delete-message">
+    <div class="endpoint-header">
+      <span class="http-method delete">DELETE</span>
+      <span class="url-path">/messages/:messageId</span>
+    </div>
+    
+    <h3>Delete Message</h3>
+    
+    
+    
+    <div class="endpoint-details"></div>
+  </div></section>
+        </div>
+    </div>
+    
+    <script>
+        // Translations
+        const translations = {"documentationGenerated":"Documentation generated on","tableOfContents":"Table of Contents","overview":"Overview","queryParameters":"Query Parameters","parameter":"Parameter","value":"Value","description":"Description","headers":"Headers","name":"Name","requestBody":"Request Body","formData":"Form Data","key":"Key","type":"Type","responseExample":"Response Example","contentType":"Content-Type","showAll":"Show All","collapse":"Collapse","noDescriptionAvailable":"No description available.","noRequestInfoAvailable":"No request information available."};
+        
+        // Handle expand/collapse functionality for response examples
+        document.addEventListener('DOMContentLoaded', function() {
+            const expandButtons = document.querySelectorAll('.expand-button');
+            
+            expandButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const responseBody = this.previousElementSibling;
+                    const isCollapsed = responseBody.classList.contains('collapsed');
+                    
+                    if (isCollapsed) {
+                        responseBody.classList.remove('collapsed');
+                        this.textContent = translations.collapse;
+                        this.classList.add('expanded');
+                    } else {
+                        responseBody.classList.add('collapsed');
+                        this.textContent = translations.showAll;
+                        this.classList.remove('expanded');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+  
