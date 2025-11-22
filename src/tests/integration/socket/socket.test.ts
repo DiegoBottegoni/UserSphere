@@ -59,8 +59,14 @@ const bobSocket = Client(SERVER_URL);
   aliceSocket.disconnect();
   bobSocket.disconnect();
 
-  console.log(`❌ Alice desconectado`);
-  console.log(`❌ Bob desconectado\n`);
+  // Verify sockets are disconnected
+  if (aliceSocket.connected) {
+    throw new Error('Alice socket is still connected after disconnect');
+  }
+  if (bobSocket.connected) {
+    throw new Error('Bob socket is still connected after disconnect');
+  }
+  console.log(`✅ Verified sockets are disconnected\n`);
 
   process.exit(0);
 })();

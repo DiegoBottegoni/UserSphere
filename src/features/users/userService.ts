@@ -71,7 +71,7 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
   const user = await userRepository.update(id, {
     ...updateData,
     profileUpdatedAt: new Date(),
-  } as any);
+  });
 
   return {
     id: user.id,
