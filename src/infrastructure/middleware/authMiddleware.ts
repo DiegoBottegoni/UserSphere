@@ -49,10 +49,7 @@ export const verifyUserSession = async (
     }
 
     // Actualiza última actividad
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastSeenAt: new Date() },
-    });
+    await userRepository.update(user.id, { lastSeenAt: new Date() });
 
     req.user = user;
 

@@ -6,7 +6,16 @@ export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   create(data: { name: string; email: string; passwordHash: string }): Promise<User>;
-  update(id: string, data: Partial<UpdateUserDTO> & { passwordHash?: string; profileUpdatedAt?: Date }): Promise<User>;
+  update(
+    id: string,
+    data: Partial<UpdateUserDTO> & {
+      passwordHash?: string;
+      profileUpdatedAt?: Date;
+      isOnline?: boolean;
+      lastLoginAt?: Date;
+      lastSeenAt?: Date;
+    }
+  ): Promise<User>;
   delete(id: string): Promise<void>;
 }
 

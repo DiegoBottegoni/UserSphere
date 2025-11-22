@@ -24,7 +24,13 @@ export class UserRepositoryPrisma implements UserRepository {
 
   async update(
     id: string,
-    data: Partial<UpdateUserDTO> & { passwordHash?: string; profileUpdatedAt?: Date }
+    data: Partial<UpdateUserDTO> & {
+      passwordHash?: string;
+      profileUpdatedAt?: Date;
+      isOnline?: boolean;
+      lastLoginAt?: Date;
+      lastSeenAt?: Date;
+    }
   ): Promise<User> {
     return prisma.user.update({
       where: { id },

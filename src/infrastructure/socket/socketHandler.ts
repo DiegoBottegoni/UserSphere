@@ -16,9 +16,9 @@ export const setupSocket = (io: Server) => {
         socket.data.userId = userId;
         connectedUsers.set(userId, socket.id); // Guardamos el socket.id asociado al userId
 
-        await prisma.user.update({
-          where: { id: userId },
-          data: { isOnline: true, lastLoginAt: new Date() },
+        await userRepository.update(userId, {
+          isOnline: true,
+          lastLoginAt: new Date(),
         });
 
         console.log(`✅ User ${userId} registered (socket: ${socket.id})`);
@@ -87,9 +87,9 @@ export const setupSocket = (io: Server) => {
         connectedUsers.delete(userId);
 
         try {
-          await prisma.user.update({
-            where: { id: userId },
-            data: { isOnline: false, lastSeenAt: new Date() },
+          await userRepository.update(userId, {
+            isOnline: false,
+            lastSeenAt: new Date(),
           });
 
           io.emit('user:offline', userId);

@@ -59,24 +59,16 @@ export const registerUser = async (
 ): Promise<RegisterResponseDTO> => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await prisma.user.create({
-    data: {
+  const user = await userRepository.create({
     name,
     email,
     passwordHash: hashedPassword,
-    },
   });
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new AppError(404, 'User not found after registration');
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
+  const updatedUser = await userRepository.update(user.id, {
     isOnline: true,
     lastLoginAt: new Date(),
     lastSeenAt: new Date(),
-    },
   });
 
   const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
@@ -98,8 +90,8 @@ export const registerUser = async (
 
 export const updateUserStatus = async (id: string, status: {
   isOnline?: boolean;
-  lastLoginAt?: Date | null;
-  lastSeenAt?: Date | null;
+  lastLoginAt?: Date;
+  lastSeenAt?: Date;
 }): Promise<UserResponseDTO> => {
   const user = await userRepository.update(id, status);
 
