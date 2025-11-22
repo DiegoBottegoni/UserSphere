@@ -1,4 +1,6 @@
 import { MessageRepositoryPrisma } from '@/infrastructure/messages/MessageRepositoryPrisma';
+import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
+import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
 
 const messageRepo = new MessageRepositoryPrisma();
 
@@ -22,11 +24,11 @@ export const markAsRead = async (messageId: string, userId: string) => {
   }
 
   if (message.senderId === userId) {
-    throw new Error('Sender cannot mark own message as read');
+    throw new BadRequestError('Sender cannot mark own message as read');
   }
 
   if (message.receiverId !== userId) {
-    throw new Error('User not authorized to mark this message as read');
+    throw new UnauthorizedError('User not authorized to mark this message as read');
   }
 
   return await messageRepo.markAsRead(messageId);

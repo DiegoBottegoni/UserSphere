@@ -3,10 +3,11 @@ import { errorHandler } from '@/infrastructure/middleware/errorHandler';
 import { AppError } from '@/infrastructure/errors/AppError';
 import { ServiceUnavailableError } from '@/infrastructure/errors/ServiceUnavailableError';
 import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
+import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
 
 /**
  * Unit tests for errorHandler middleware
- * Tests that ServiceUnavailableError and UnauthorizedError are properly recognized and handled
+ * Tests that ServiceUnavailableError, UnauthorizedError, and BadRequestError are properly recognized and handled
  */
 (async () => {
   console.log(`\n🧪 Starting errorHandler unit tests...\n`);
@@ -275,6 +276,129 @@ import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
     }
   } catch (error: any) {
     console.error(`❌ Test 10 failed: ${error.message}`);
+    testsFailed++;
+  }
+
+  // Test 11: BadRequestError with default message
+  try {
+    console.log(`\n📝 Test 11: BadRequestError with default message...`);
+    const req = createMockReq();
+    const res = createMockRes();
+    const next = (() => {}) as NextFunction;
+
+    const error = new BadRequestError();
+    errorHandler(error as any, req as Request, res as Response, next);
+
+    if (res.statusCode === 400) {
+      if (res.responseBody?.error === 'Bad request. Please check your input and try again.') {
+        console.log(`✅ Test 11 passed: Returns 400 with default message`);
+        testsPassed++;
+      } else {
+        throw new Error(
+          `Expected error message "Bad request. Please check your input and try again.", got: ${JSON.stringify(
+            res.responseBody
+          )}`
+        );
+      }
+    } else {
+      throw new Error(`Expected status 400, got: ${res.statusCode}`);
+    }
+  } catch (error: any) {
+    console.error(`❌ Test 11 failed: ${error.message}`);
+    testsFailed++;
+  }
+
+  // Test 12: BadRequestError with custom message
+  try {
+    console.log(`\n📝 Test 12: BadRequestError with custom message...`);
+    const req = createMockReq();
+    const res = createMockRes();
+    const next = (() => {}) as NextFunction;
+
+    const error = new BadRequestError('You cannot send a friendship request to yourself.');
+    errorHandler(error as any, req as Request, res as Response, next);
+
+    if (res.statusCode === 400) {
+      if (res.responseBody?.error === 'You cannot send a friendship request to yourself.') {
+        console.log(`✅ Test 12 passed: Returns 400 with custom message`);
+        testsPassed++;
+      } else {
+        throw new Error(
+          `Expected error message "You cannot send a friendship request to yourself.", got: ${JSON.stringify(
+            res.responseBody
+          )}`
+        );
+      }
+    } else {
+      throw new Error(`Expected status 400, got: ${res.statusCode}`);
+    }
+  } catch (error: any) {
+    console.error(`❌ Test 12 failed: ${error.message}`);
+    testsFailed++;
+  }
+
+  // Test 13: Verify BadRequestError is instanceof AppError
+  try {
+    console.log(`\n📝 Test 13: BadRequestError instanceof AppError...`);
+    const error = new BadRequestError();
+    if (error instanceof AppError) {
+      console.log(`✅ Test 13 passed: BadRequestError extends AppError`);
+      testsPassed++;
+    } else {
+      throw new Error('BadRequestError is not an instance of AppError');
+    }
+  } catch (error: any) {
+    console.error(`❌ Test 13 failed: ${error.message}`);
+    testsFailed++;
+  }
+
+  // Test 14: Verify errorHandler treats BadRequestError same as AppError(400)
+  try {
+    console.log(`\n📝 Test 14: BadRequestError handled same as AppError(400)...`);
+    const req1 = createMockReq();
+    const res1 = createMockRes();
+    const next1 = (() => {}) as NextFunction;
+
+    const req2 = createMockReq();
+    const res2 = createMockRes();
+    const next2 = (() => {}) as NextFunction;
+
+    const badRequestError = new BadRequestError('Invalid operation');
+    const appError400 = new AppError(400, 'Invalid operation');
+
+    errorHandler(badRequestError as any, req1 as Request, res1 as Response, next1);
+    errorHandler(appError400 as any, req2 as Request, res2 as Response, next2);
+
+    const status1 = res1.statusCode;
+    const status2 = res2.statusCode;
+    const message1 = res1.responseBody?.error;
+    const message2 = res2.responseBody?.error;
+
+    if (status1 === status2 && status1 === 400 && message1 === message2) {
+      console.log(`✅ Test 14 passed: Both errors handled identically`);
+      testsPassed++;
+    } else {
+      throw new Error(
+        `Errors handled differently. BadRequestError: ${status1}/${message1}, AppError(400): ${status2}/${message2}`
+      );
+    }
+  } catch (error: any) {
+    console.error(`❌ Test 14 failed: ${error.message}`);
+    testsFailed++;
+  }
+
+  // Test 15: Verify statusCode property is 400
+  try {
+    console.log(`\n📝 Test 15: BadRequestError has statusCode 400...`);
+    const error = new BadRequestError();
+    if (error.statusCode === 400) {
+      console.log(`✅ Test 15 passed: statusCode is 400`);
+      testsPassed++;
+    } else {
+      throw new Error(`Expected statusCode 400, got: ${error.statusCode}`);
+    }
+  } catch (error: any) {
+    console.error(`❌ Test 15 failed: ${error.message}`);
     testsFailed++;
   }
 
