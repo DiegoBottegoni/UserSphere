@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { registerUser, loginUser, logoutUser } from '@/features/auth/authService';
-import { AppError } from '@/infrastructure/errors/AppError';
+import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
 import type { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -26,7 +26,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = (req as any).user?.id;
-    if (!userId) throw new AppError(401, 'User not authenticated');
+    if (!userId) throw new UnauthorizedError('User not authenticated');
 
     await logoutUser(userId);
     res.json({ message: 'Logout successful' });

@@ -3,8 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
 import { UserResponseDTO } from '@/domain/users/dto';
-import { AppError } from '@/infrastructure/errors/AppError';
 import { ServiceUnavailableError } from '@/infrastructure/errors/ServiceUnavailableError';
+import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const userRepository = new UserRepositoryPrisma();
@@ -13,12 +13,12 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   try {
     const user = await userRepository.findByEmail(email);
     if (!user) {
-      throw new AppError(401, 'User not found');
+      throw new UnauthorizedError('User not found');
     }
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
     if (!isValid) {
-      throw new AppError(401, 'Invalid password');
+      throw new UnauthorizedError('Invalid password');
     }
 
     const updatedUser = await updateUserStatus(user.id, {
@@ -127,6 +127,6 @@ export const verifyToken = (token: string) => {
   try {
     return jwt.verify(token, JWT_SECRET) as { id: string };
   } catch {
-    throw new AppError(401, 'Invalid token');
+    throw new UnauthorizedError('Invalid token');
   }
 };
