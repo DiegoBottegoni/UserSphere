@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
 import { UserResponseDTO } from '@/domain/users/dto';
 import { AppError } from '@/infrastructure/errors/AppError';
+import { ServiceUnavailableError } from '@/infrastructure/errors/ServiceUnavailableError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const userRepository = new UserRepositoryPrisma();
@@ -43,7 +44,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     };
   } catch (err: any) {
     if (err.name === 'PrismaClientInitializationError') {
-      throw new AppError(503, 'Database unavailable');
+      throw new ServiceUnavailableError('Database unavailable');
     }
     throw err;
   }
@@ -116,7 +117,7 @@ export const logoutUser = async (userId: string): Promise<void> => {
     });
   } catch (err: any) {
     if (err.name === 'PrismaClientInitializationError') {
-      throw new AppError(503, 'Database unavailable');
+      throw new ServiceUnavailableError('Database unavailable');
     }
     throw err;
   }
