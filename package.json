@@ -10,6 +10,7 @@
     "start": "node dist/server.js",
     "test": "echo \"Run specific tests like: npm run test:users or npm run test:socket or npm run test:errorHandler\"",
     "test:users": "ts-node src/tests/integration/users/userService.test.ts",
+    "test:userController": "ts-node src/tests/integration/users/userController.test.ts",
     "test:socket": "ts-node src/tests/integration/socket/socket.test.ts",
     "test:errorHandler": "ts-node src/tests/unit/middleware/errorHandler.test.ts",
     "lint": "eslint src --ext .ts",
