@@ -4,7 +4,7 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { UserRepositoryPrisma } from '../users/UserRepositoryPrisma';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 
 interface JwtPayload {
   id: string;

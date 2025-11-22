@@ -1,6 +1,12 @@
 import { Router } from 'express';
-import { verifyUserSession } from '../../infrastructure/middleware/authMiddleware';
-import { getUser, getUsers, createNewUser, updateExistingUser, removeUser } from './userController';
+import { verifyUserSession } from '@/infrastructure/middleware/authMiddleware';
+import {
+  getUser,
+  getUsers,
+  createNewUser,
+  updateExistingUser,
+  removeUser,
+} from '@/features/users/userController';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
-import { prisma } from '../prisma/client';
-import { UserRepository } from '../../domain/users/UserRepository';
+import { prisma } from '@/infrastructure/prisma/client';
+import { UserRepository } from '@/domain/users/UserRepository';
 import { User } from '@prisma/client';
-import { UpdateUserDTO } from '../../domain/users/dto';
+import { UpdateUserDTO } from '@/domain/users/dto';
 
 export class UserRepositoryPrisma implements UserRepository {
   async findById(id: string): Promise<User | null> {

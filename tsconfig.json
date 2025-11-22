@@ -5,6 +5,13 @@
     "moduleResolution": "node",
     "rootDir": "./src",
     "outDir": "./dist",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["./*"],
+      "@/infrastructure/*": ["./infrastructure/*"],
+      "@/features/*": ["./features/*"],
+      "@/domain/*": ["./domain/*"]
+    },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -22,5 +29,8 @@
     "isolatedModules": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
 }

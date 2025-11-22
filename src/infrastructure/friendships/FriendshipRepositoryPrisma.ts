@@ -1,7 +1,7 @@
-import { prisma } from '../prisma/client';
+import { prisma } from '@/infrastructure/prisma/client';
 import { Friendship, FriendshipStatus } from '@prisma/client';
-import { FriendshipRepository } from '../../domain/friendships/FriendshipRepository';
-import { FriendshipPreview } from '../../domain/friendships/dtos/FriendshipPreview';
+import { FriendshipRepository } from '@/domain/friendships/FriendshipRepository';
+import { FriendshipPreview } from '@/domain/friendships/dtos/FriendshipPreview';
 
 export class FriendshipRepositoryPrisma implements FriendshipRepository {
   async sendRequest(requesterId: string, receiverId: string): Promise<Friendship> {

@@ -1,5 +1,5 @@
-import { UserRepositoryPrisma } from '../../infrastructure/users/UserRepositoryPrisma';
-import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
+import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '@/domain/users/dto';
 import bcrypt from 'bcryptjs';
 
 const userRepository = new UserRepositoryPrisma();

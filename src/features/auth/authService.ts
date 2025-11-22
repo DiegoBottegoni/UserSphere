@@ -1,9 +1,9 @@
-import { UserRepositoryPrisma } from '../../infrastructure/users/UserRepositoryPrisma';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
-import { UserResponseDTO } from '../../domain/users/dto';
-import { AppError } from '../../infrastructure/errors/AppError';
+import { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
+import { UserResponseDTO } from '@/domain/users/dto';
+import { AppError } from '@/infrastructure/errors/AppError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const userRepository = new UserRepositoryPrisma();

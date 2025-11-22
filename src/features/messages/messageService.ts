@@ -1,4 +1,4 @@
-import { MessageRepositoryPrisma } from '../../infrastructure/messages/MessageRepositoryPrisma';
+import { MessageRepositoryPrisma } from '@/infrastructure/messages/MessageRepositoryPrisma';
 
 const messageRepo = new MessageRepositoryPrisma();
 

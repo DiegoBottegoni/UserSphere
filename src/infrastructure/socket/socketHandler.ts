@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
-import { prisma } from '../prisma/client';
-import { UserRepositoryPrisma } from '../users/UserRepositoryPrisma';
+import { prisma } from '@/infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 
 // 🧩 Registro global de conexiones activas
 const connectedUsers = new Map<string, string>(); // userId -> socketId

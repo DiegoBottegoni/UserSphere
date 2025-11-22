@@ -5,13 +5,13 @@ import cors from 'cors';
 import path from 'path';
 import { Server as SocketIOServer } from 'socket.io';
 
-import authRoutes from './features/auth/authRoutes';
-import userRoutes from './features/users/userRoutes';
-import friendshipRoutes from './features/friendships/friendshipRoutes';
-import messageRoutes from './features/messages/messageRoutes';
+import authRoutes from '@/features/auth/authRoutes';
+import userRoutes from '@/features/users/userRoutes';
+import friendshipRoutes from '@/features/friendships/friendshipRoutes';
+import messageRoutes from '@/features/messages/messageRoutes';
 
-import { errorHandler } from './infrastructure/middleware/errorHandler';
-import { setupSocket } from './infrastructure/socket/socketHandler';
+import { errorHandler } from '@/infrastructure/middleware/errorHandler';
+import { setupSocket } from '@/infrastructure/socket/socketHandler';
 
 dotenv.config();
 

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
-import { registerUser, loginUser, logoutUser } from './authService';
-import { AppError } from '../../infrastructure/errors/AppError';
-import type { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
+import { registerUser, loginUser, logoutUser } from '@/features/auth/authService';
+import { AppError } from '@/infrastructure/errors/AppError';
+import type { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {

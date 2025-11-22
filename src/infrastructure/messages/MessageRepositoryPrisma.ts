@@ -1,7 +1,7 @@
-import { prisma } from '../prisma/client';
-import { MessageRepository } from '../../domain/messages/MessageRepository';
-import { Message } from '../../domain/messages/Message';
-import { LastMessageDTO } from '../../domain/messages/responses';
+import { prisma } from '@/infrastructure/prisma/client';
+import { MessageRepository } from '@/domain/messages/MessageRepository';
+import { Message } from '@/domain/messages/Message';
+import { LastMessageDTO } from '@/domain/messages/responses';
 
 export class MessageRepositoryPrisma implements MessageRepository {
   async sendMessage(senderId: string, receiverId: string, content: string): Promise<Message> {

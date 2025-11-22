@@ -1,4 +1,4 @@
-import { FriendshipRepositoryPrisma } from '../../infrastructure/friendships/FriendshipRepositoryPrisma';
+import { FriendshipRepositoryPrisma } from '@/infrastructure/friendships/FriendshipRepositoryPrisma';
 
 const friendshipRepository = new FriendshipRepositoryPrisma();
 
