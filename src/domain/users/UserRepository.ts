@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { CreateUserDTO, UpdateUserDTO } from './dto';
+import { UpdateUserDTO } from './dto';
 
 export interface UserRepository {
   findById(id: string): Promise<User | null>;

@@ -1,4 +1,4 @@
-import { prisma } from '../../infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '../../infrastructure/users/UserRepositoryPrisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
@@ -6,13 +6,14 @@ import { UserResponseDTO } from '../../domain/users/dto';
 import { AppError } from '../../infrastructure/errors/AppError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const userRepository = new UserRepositoryPrisma();
 
 export const loginUser = async (
   email: string,
   password: string
 ): Promise<LoginResponseDTO> => {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await userRepository.findByEmail(email);
     if (!user) {
       throw new AppError(401, 'User not found');
     }
@@ -60,9 +61,9 @@ export const registerUser = async (
 
   await prisma.user.create({
     data: {
-      name,
-      email,
-      passwordHash: hashedPassword,
+    name,
+    email,
+    passwordHash: hashedPassword,
     },
   });
 
@@ -72,14 +73,13 @@ export const registerUser = async (
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      isOnline: true,
-      lastLoginAt: new Date(),
-      lastSeenAt: new Date(),
+    isOnline: true,
+    lastLoginAt: new Date(),
+    lastSeenAt: new Date(),
     },
   });
 
-  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-  const updatedUser = await prisma.user.findUnique({ where: { id: user.id } });
+  const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
 
   return {
     token,
@@ -101,10 +101,7 @@ export const updateUserStatus = async (id: string, status: {
   lastLoginAt?: Date | null;
   lastSeenAt?: Date | null;
 }): Promise<UserResponseDTO> => {
-  const user = await prisma.user.update({
-    where: { id },
-    data: { ...status },
-  });
+  const user = await userRepository.update(id, status);
 
   return {
     id: user.id,

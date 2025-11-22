@@ -1,9 +1,11 @@
-import { prisma } from '../../infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '../../infrastructure/users/UserRepositoryPrisma';
 import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
 import bcrypt from 'bcryptjs';
 
+const userRepository = new UserRepositoryPrisma();
+
 export const getUserById = async (id: string): Promise<UserResponseDTO> => {
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await userRepository.findById(id);
   if (!user) throw new Error('User not found');
 
   return {
@@ -20,7 +22,7 @@ export const getUserById = async (id: string): Promise<UserResponseDTO> => {
 };
 
 export const getAllUsers = async (): Promise<UserResponseDTO[]> => {
-  const users = await prisma.user.findMany();
+  const users = await userRepository.findAll();
   return users.map(user => ({
     id: user.id,
     name: user.name,
@@ -38,13 +40,10 @@ export const createUser = async (data: CreateUserDTO): Promise<UserResponseDTO> 
   const { name, email, password } = data;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: hashedPassword,
-      // isOnline, createdAt, updatedAt se manejan por default
-    },
+  const user = await userRepository.create({
+    name,
+    email,
+    passwordHash: hashedPassword,
   });
 
   return {
@@ -69,13 +68,10 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
     updateData.passwordHash = await bcrypt.hash(password, 10);
   }
 
-  const user = await prisma.user.update({
-    where: { id },
-    data: {
-      ...updateData,
-      profileUpdatedAt: new Date(),
-    },
-  });
+  const user = await userRepository.update(id, {
+    ...updateData,
+    profileUpdatedAt: new Date(),
+  } as any);
 
   return {
     id: user.id,
@@ -92,5 +88,5 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
 
 
 export const deleteUser = async (id: string): Promise<void> => {
-  await prisma.user.delete({ where: { id } });
+  await userRepository.delete(id);
 };
