@@ -39,7 +39,7 @@ const bobSocket = Client(SERVER_URL);
     content: 'Hola Bob! Esto es una prueba en tiempo real ⚡',
   });
 
-  // Listen for incoming message on Bob’s side
+  // Listen for incoming message on Bob's side
   bobSocket.on('message:new', (message) => {
     console.log(`📥 Bob recibió mensaje: "${message.content}"`);
     // Immediately mark as read
@@ -64,3 +64,4 @@ const bobSocket = Client(SERVER_URL);
 
   process.exit(0);
 })();
+
