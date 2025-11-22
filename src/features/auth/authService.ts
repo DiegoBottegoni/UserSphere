@@ -8,10 +8,7 @@ import { AppError } from '../../infrastructure/errors/AppError';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const userRepository = new UserRepositoryPrisma();
 
-export const loginUser = async (
-  email: string,
-  password: string
-): Promise<LoginResponseDTO> => {
+export const loginUser = async (email: string, password: string): Promise<LoginResponseDTO> => {
   try {
     const user = await userRepository.findByEmail(email);
     if (!user) {
@@ -50,7 +47,7 @@ export const loginUser = async (
     }
     throw err;
   }
-}
+};
 
 export const registerUser = async (
   name: string,
@@ -88,11 +85,14 @@ export const registerUser = async (
   };
 };
 
-export const updateUserStatus = async (id: string, status: {
-  isOnline?: boolean;
-  lastLoginAt?: Date;
-  lastSeenAt?: Date;
-}): Promise<UserResponseDTO> => {
+export const updateUserStatus = async (
+  id: string,
+  status: {
+    isOnline?: boolean;
+    lastLoginAt?: Date;
+    lastSeenAt?: Date;
+  }
+): Promise<UserResponseDTO> => {
   const user = await userRepository.update(id, status);
 
   return {
@@ -108,7 +108,6 @@ export const updateUserStatus = async (id: string, status: {
   };
 };
 
-
 export const logoutUser = async (userId: string): Promise<void> => {
   try {
     await updateUserStatus(userId, {
@@ -123,11 +122,10 @@ export const logoutUser = async (userId: string): Promise<void> => {
   }
 };
 
-
 export const verifyToken = (token: string) => {
   try {
     return jwt.verify(token, JWT_SECRET) as { id: string };
-  } catch (err) {
+  } catch {
     throw new AppError(401, 'Invalid token');
   }
 };

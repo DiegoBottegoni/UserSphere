@@ -29,7 +29,7 @@ export const setupSocket = (io: Server) => {
     });
 
     // ✉️ Enviar mensaje
-    socket.on('message:send', async (data) => {
+    socket.on('message:send', async data => {
       try {
         const { senderId, receiverId, content } = data;
 

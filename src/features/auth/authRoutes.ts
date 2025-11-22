@@ -8,7 +8,6 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', verifyUserSession, logout);
 
-
 // Ruta protegida de prueba
 router.get('/me', verifyUserSession, (req, res) => {
   res.json({
@@ -16,6 +15,5 @@ router.get('/me', verifyUserSession, (req, res) => {
     user: req.user,
   });
 });
-
 
 export default router;

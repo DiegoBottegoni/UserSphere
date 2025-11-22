@@ -58,7 +58,6 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
   }
 };
 
-
 export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
@@ -77,4 +76,3 @@ export const removeUser = async (req: Request, res: Response, next: NextFunction
     return;
   }
 };
-

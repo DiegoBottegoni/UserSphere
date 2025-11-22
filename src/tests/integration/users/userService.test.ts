@@ -5,13 +5,17 @@ dotenv.config();
 if (!process.env.DATABASE_URL) {
   console.error('\n❌ Error: DATABASE_URL environment variable is not set.');
   console.error('Please make sure you have a .env file with DATABASE_URL configured.');
-  console.error('You can copy .env.example to .env and update it with your database connection string.\n');
+  console.error(
+    'You can copy .env.example to .env and update it with your database connection string.\n'
+  );
   process.exit(1);
 }
 
 (async () => {
   // Dynamic imports after env is loaded
-  const { getUserById, getAllUsers, createUser, updateUser, deleteUser } = await import('../../../features/users/userService');
+  const { getUserById, getAllUsers, createUser, updateUser, deleteUser } = await import(
+    '../../../features/users/userService'
+  );
   const { prisma } = await import('../../../infrastructure/prisma/client');
   console.log(`\n🚀 Starting UserService integration test...\n`);
 
@@ -61,7 +65,9 @@ if (!process.env.DATABASE_URL) {
     if (!foundUser) {
       throw new Error('Created user not found in getAllUsers result');
     }
-    console.log(`✅ getAllUsers returned ${allUsers.length} user(s) (increased from ${initialUserCount})`);
+    console.log(
+      `✅ getAllUsers returned ${allUsers.length} user(s) (increased from ${initialUserCount})`
+    );
     console.log(`✅ Created user found in list`);
 
     // --- TEST UPDATE USER ---
@@ -116,18 +122,17 @@ if (!process.env.DATABASE_URL) {
   } catch (error: any) {
     console.error(`\n❌ Test failed: ${error.message}`);
     console.error(error);
-    
+
     // Cleanup on error
     if (testUserId) {
       try {
         await prisma.user.delete({ where: { id: testUserId } }).catch(() => {});
         console.log(`🧹 Cleaned up test user`);
-      } catch (e) {
+      } catch {
         // Ignore cleanup errors
       }
     }
-    
+
     process.exit(1);
   }
 })();
-

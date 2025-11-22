@@ -45,7 +45,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
       where: { id: friendshipId },
     });
   }
-  
+
   async blockUser(friendshipId: string): Promise<Friendship> {
     return prisma.friendship.update({
       where: { id: friendshipId },
@@ -72,7 +72,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
       },
     });
 
-    return requests.map((req) => ({
+    return requests.map(req => ({
       id: req.id,
       status: req.status,
       friend: req.requester,
@@ -98,7 +98,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
       },
     });
 
-    return sent.map((req) => ({
+    return sent.map(req => ({
       id: req.id,
       status: req.status,
       friend: req.receiver,
@@ -135,7 +135,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
       },
     });
 
-    return friendships.map((f) => {
+    return friendships.map(f => {
       const friend = f.requesterId === userId ? f.receiver : f.requester;
       return {
         id: f.id,
