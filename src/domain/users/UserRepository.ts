@@ -18,4 +18,3 @@ export interface UserRepository {
   ): Promise<User>;
   delete(id: string): Promise<void>;
 }
-

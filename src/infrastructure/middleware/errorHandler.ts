@@ -1,24 +1,18 @@
 import { NextFunction, Request, Response } from 'express';
-import { AppError } from '../errors/AppError';
+import { AppError } from '@/infrastructure/errors/AppError';
 
 /**
  * Global error handler for the application
  * Catches Prisma errors, Auth errors, Validation errors, etc.
  */
-export const errorHandler = (
-  err: any,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
+export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error('🔥 Error caught by middleware:', err);
   console.error('🔥 Error details:', {
-  message: err.message,
-  code: err.code,
-  name: err.name,
-  stack: err.stack,
-});
-
+    message: err.message,
+    code: err.code,
+    name: err.name,
+    stack: err.stack,
+  });
 
   // ---------- Prisma Known Request Errors ----------
   if (err.code) {
@@ -81,8 +75,7 @@ export const errorHandler = (
         });
       case 'P2014':
         return res.status(400).json({
-          error:
-            'The change you are trying to make would violate a relation constraint.',
+          error: 'The change you are trying to make would violate a relation constraint.',
         });
       case 'P2016':
         return res.status(400).json({

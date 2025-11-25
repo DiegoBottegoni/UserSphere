@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
-import { prisma } from '../prisma/client';
-import { UserRepositoryPrisma } from '../users/UserRepositoryPrisma';
+import { prisma } from '@/infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 
 // 🧩 Registro global de conexiones activas
 const connectedUsers = new Map<string, string>(); // userId -> socketId
@@ -29,7 +29,7 @@ export const setupSocket = (io: Server) => {
     });
 
     // ✉️ Enviar mensaje
-    socket.on('message:send', async (data) => {
+    socket.on('message:send', async data => {
       try {
         const { senderId, receiverId, content } = data;
 

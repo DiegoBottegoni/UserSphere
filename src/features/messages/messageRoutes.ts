@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { verifyUserSession } from '../../infrastructure/middleware/authMiddleware';
+import { verifyUserSession } from '@/infrastructure/middleware/authMiddleware';
 import {
   sendMessage,
   getConversation,
   getLastMessages,
   markAsRead,
   deleteMessage,
-} from './messageController';
+} from '@/features/messages/messageController';
 
 const router = Router();
 

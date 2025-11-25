@@ -8,9 +8,16 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "echo \"Run specific tests like: npm run test:users or npm run test:socket\"",
+    "test": "echo \"Run specific tests like: npm run test:users or npm run test:socket or npm run test:errorHandler\"",
     "test:users": "ts-node src/tests/integration/users/userService.test.ts",
-    "test:socket": "ts-node src/tests/integration/socket/socket.test.ts"
+    "test:userController": "ts-node src/tests/integration/users/userController.test.ts",
+    "test:socket": "ts-node src/tests/integration/socket/socket.test.ts",
+    "test:errorHandler": "ts-node src/tests/unit/middleware/errorHandler.test.ts",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "nodejs",
@@ -35,16 +42,27 @@
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "@types/socket.io": "^3.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.47.0",
+    "@typescript-eslint/parser": "^8.47.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-prettier": "^5.5.4",
+    "lefthook": "^2.0.4",
     "postman-collection-to-html": "^1.2.0",
+    "prettier": "^3.6.2",
     "prisma": "^6.16.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.2"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.47.0"
   }
 }

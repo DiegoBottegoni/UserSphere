@@ -1,10 +1,11 @@
-import { FriendshipRepositoryPrisma } from '../../infrastructure/friendships/FriendshipRepositoryPrisma';
+import { FriendshipRepositoryPrisma } from '@/infrastructure/friendships/FriendshipRepositoryPrisma';
+import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
 
 const friendshipRepository = new FriendshipRepositoryPrisma();
 
 export const sendRequest = async (requesterId: string, receiverId: string) => {
   if (requesterId === receiverId) {
-    throw new Error('You cannot send a friendship request to yourself.');
+    throw new BadRequestError('You cannot send a friendship request to yourself.');
   }
   return friendshipRepository.sendRequest(requesterId, receiverId);
 };

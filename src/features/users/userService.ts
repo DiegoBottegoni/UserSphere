@@ -1,5 +1,5 @@
-import { UserRepositoryPrisma } from '../../infrastructure/users/UserRepositoryPrisma';
-import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
+import { UserResponseDTO, CreateUserDTO, UpdateUserDTO } from '@/domain/users/dto';
 import bcrypt from 'bcryptjs';
 
 const userRepository = new UserRepositoryPrisma();
@@ -59,7 +59,6 @@ export const createUser = async (data: CreateUserDTO): Promise<UserResponseDTO> 
   };
 };
 
-
 export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserResponseDTO> => {
   const { password, ...rest } = data;
   const updateData: any = { ...rest };
@@ -85,7 +84,6 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
     lastSeenAt: user.lastSeenAt,
   };
 };
-
 
 export const deleteUser = async (id: string): Promise<void> => {
   await userRepository.delete(id);

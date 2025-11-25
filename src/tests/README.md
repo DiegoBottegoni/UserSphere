@@ -11,6 +11,9 @@ tests/
 │   │   └── userService.test.ts    # User service integration tests
 │   └── socket/
 │       └── socket.test.ts          # Socket.IO integration tests
+├── unit/
+│   └── middleware/
+│       └── errorHandler.test.ts    # Error handler unit tests
 └── README.md
 ```
 
@@ -30,6 +33,12 @@ npm run dev
 
 # In another terminal, run the test
 npx ts-node src/tests/integration/socket/socket.test.ts
+```
+
+### Error Handler Unit Tests
+Tests the errorHandler middleware to ensure custom errors (like `ServiceUnavailableError`) are properly recognized and handled:
+```bash
+npm run test:errorHandler
 ```
 
 ## Test Requirements

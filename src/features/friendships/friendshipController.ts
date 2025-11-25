@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as friendshipService from './friendshipService';
+import * as friendshipService from '@/features/friendships/friendshipService';
 
 export const sendRequest = async (req: Request, res: Response) => {
   try {
