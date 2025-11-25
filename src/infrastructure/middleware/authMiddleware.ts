@@ -4,13 +4,14 @@
 
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { prisma } from '../prisma/client';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 
 interface JwtPayload {
   id: string;
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const userRepository = new UserRepositoryPrisma();
 
 export const verifyUserSession = async (
   req: Request,
@@ -40,9 +41,7 @@ export const verifyUserSession = async (
   try {
     const decoded = jwt.verify(token as string, JWT_SECRET) as unknown as JwtPayload;
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-    });
+    const user = await userRepository.findById(decoded.id);
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
@@ -50,10 +49,7 @@ export const verifyUserSession = async (
     }
 
     // Actualiza última actividad
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastSeenAt: new Date() },
-    });
+    await userRepository.update(user.id, { lastSeenAt: new Date() });
 
     req.user = user;
 

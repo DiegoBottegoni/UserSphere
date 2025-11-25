@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as messageService from './messageService';
-import { io } from '../../server';
+import * as messageService from '@/features/messages/messageService';
+import { io } from '@/server';
 
 export const sendMessage = async (req: Request, res: Response) => {
   try {

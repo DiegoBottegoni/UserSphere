@@ -1,11 +1,18 @@
 import type { Request, Response, NextFunction } from 'express';
-import { getUserById, getAllUsers, createUser, updateUser, deleteUser } from './userService';
-import { CreateUserDTO, UpdateUserDTO } from '../../domain/users/dto';
+import {
+  getUserById,
+  getAllUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from '@/features/users/userService';
+import { CreateUserDTO, UpdateUserDTO } from '@/domain/users/dto';
+import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    if (!id) return res.status(400).json({ error: 'Missing user id' });
+    if (!id) throw new BadRequestError('Missing user id');
 
     const user = await getUserById(id);
     return res.json(user);
@@ -42,7 +49,7 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
     const userIdFromToken = req.user?.id;
 
     if (!id) {
-      return res.status(400).json({ error: 'Missing user id' });
+      throw new BadRequestError('Missing user id');
     }
 
     if (userIdFromToken !== id) {
@@ -58,13 +65,12 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
   }
 };
 
-
 export const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const userIdFromToken = req.user?.id;
 
-    if (!id) return res.status(400).json({ error: 'Missing user id' });
+    if (!id) throw new BadRequestError('Missing user id');
 
     if (userIdFromToken !== id) {
       return res.status(403).json({ error: 'You are not authorized to delete this user' });
@@ -77,4 +83,3 @@ export const removeUser = async (req: Request, res: Response, next: NextFunction
     return;
   }
 };
-

@@ -1,13 +1,12 @@
 import { Router } from 'express';
-import { register, login, logout } from './authController';
-import { verifyUserSession } from '../../infrastructure/middleware/authMiddleware';
+import { register, login, logout } from '@/features/auth/authController';
+import { verifyUserSession } from '@/infrastructure/middleware/authMiddleware';
 
 const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', verifyUserSession, logout);
-
 
 // Ruta protegida de prueba
 router.get('/me', verifyUserSession, (req, res) => {
@@ -16,6 +15,5 @@ router.get('/me', verifyUserSession, (req, res) => {
     user: req.user,
   });
 });
-
 
 export default router;

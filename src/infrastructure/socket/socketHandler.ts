@@ -1,8 +1,10 @@
 import { Server, Socket } from 'socket.io';
-import { prisma } from '../prisma/client';
+import { prisma } from '@/infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 
 // 🧩 Registro global de conexiones activas
 const connectedUsers = new Map<string, string>(); // userId -> socketId
+const userRepository = new UserRepositoryPrisma();
 
 export const setupSocket = (io: Server) => {
   io.on('connection', async (socket: Socket) => {
@@ -14,9 +16,9 @@ export const setupSocket = (io: Server) => {
         socket.data.userId = userId;
         connectedUsers.set(userId, socket.id); // Guardamos el socket.id asociado al userId
 
-        await prisma.user.update({
-          where: { id: userId },
-          data: { isOnline: true, lastLoginAt: new Date() },
+        await userRepository.update(userId, {
+          isOnline: true,
+          lastLoginAt: new Date(),
         });
 
         console.log(`✅ User ${userId} registered (socket: ${socket.id})`);
@@ -27,7 +29,7 @@ export const setupSocket = (io: Server) => {
     });
 
     // ✉️ Enviar mensaje
-    socket.on('message:send', async (data) => {
+    socket.on('message:send', async data => {
       try {
         const { senderId, receiverId, content } = data;
 
@@ -85,9 +87,9 @@ export const setupSocket = (io: Server) => {
         connectedUsers.delete(userId);
 
         try {
-          await prisma.user.update({
-            where: { id: userId },
-            data: { isOnline: false, lastSeenAt: new Date() },
+          await userRepository.update(userId, {
+            isOnline: false,
+            lastSeenAt: new Date(),
           });
 
           io.emit('user:offline', userId);

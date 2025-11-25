@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { verifyUserSession } from '../../infrastructure/middleware/authMiddleware';
+import { verifyUserSession } from '@/infrastructure/middleware/authMiddleware';
 import {
   sendRequest,
   acceptRequest,
@@ -8,7 +8,7 @@ import {
   getPendingRequests,
   getSentRequests,
   getAllFriends,
-} from './friendshipController';
+} from '@/features/friendships/friendshipController';
 
 const router = Router();
 

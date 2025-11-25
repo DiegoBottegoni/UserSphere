@@ -1,25 +1,24 @@
-import { prisma } from '../../infrastructure/prisma/client';
+import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { LoginResponseDTO, RegisterResponseDTO } from '../../domain/auth/dto';
-import { UserResponseDTO } from '../../domain/users/dto';
-import { AppError } from '../../infrastructure/errors/AppError';
+import { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
+import { UserResponseDTO } from '@/domain/users/dto';
+import { ServiceUnavailableError } from '@/infrastructure/errors/ServiceUnavailableError';
+import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const userRepository = new UserRepositoryPrisma();
 
-export const loginUser = async (
-  email: string,
-  password: string
-): Promise<LoginResponseDTO> => {
+export const loginUser = async (email: string, password: string): Promise<LoginResponseDTO> => {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await userRepository.findByEmail(email);
     if (!user) {
-      throw new AppError(401, 'User not found');
+      throw new UnauthorizedError('User not found');
     }
 
     const isValid = await bcrypt.compare(password, user.passwordHash);
     if (!isValid) {
-      throw new AppError(401, 'Invalid password');
+      throw new UnauthorizedError('Invalid password');
     }
 
     const updatedUser = await updateUserStatus(user.id, {
@@ -45,11 +44,11 @@ export const loginUser = async (
     };
   } catch (err: any) {
     if (err.name === 'PrismaClientInitializationError') {
-      throw new AppError(503, 'Database unavailable');
+      throw new ServiceUnavailableError('Database unavailable');
     }
     throw err;
   }
-}
+};
 
 export const registerUser = async (
   name: string,
@@ -58,28 +57,19 @@ export const registerUser = async (
 ): Promise<RegisterResponseDTO> => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: hashedPassword,
-    },
+  const user = await userRepository.create({
+    name,
+    email,
+    passwordHash: hashedPassword,
   });
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) throw new AppError(404, 'User not found after registration');
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      isOnline: true,
-      lastLoginAt: new Date(),
-      lastSeenAt: new Date(),
-    },
+  const updatedUser = await userRepository.update(user.id, {
+    isOnline: true,
+    lastLoginAt: new Date(),
+    lastSeenAt: new Date(),
   });
 
-  const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' });
-  const updatedUser = await prisma.user.findUnique({ where: { id: user.id } });
+  const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
 
   return {
     token,
@@ -96,15 +86,15 @@ export const registerUser = async (
   };
 };
 
-export const updateUserStatus = async (id: string, status: {
-  isOnline?: boolean;
-  lastLoginAt?: Date | null;
-  lastSeenAt?: Date | null;
-}): Promise<UserResponseDTO> => {
-  const user = await prisma.user.update({
-    where: { id },
-    data: { ...status },
-  });
+export const updateUserStatus = async (
+  id: string,
+  status: {
+    isOnline?: boolean;
+    lastLoginAt?: Date;
+    lastSeenAt?: Date;
+  }
+): Promise<UserResponseDTO> => {
+  const user = await userRepository.update(id, status);
 
   return {
     id: user.id,
@@ -119,7 +109,6 @@ export const updateUserStatus = async (id: string, status: {
   };
 };
 
-
 export const logoutUser = async (userId: string): Promise<void> => {
   try {
     await updateUserStatus(userId, {
@@ -128,17 +117,16 @@ export const logoutUser = async (userId: string): Promise<void> => {
     });
   } catch (err: any) {
     if (err.name === 'PrismaClientInitializationError') {
-      throw new AppError(503, 'Database unavailable');
+      throw new ServiceUnavailableError('Database unavailable');
     }
     throw err;
   }
 };
 
-
 export const verifyToken = (token: string) => {
   try {
     return jwt.verify(token, JWT_SECRET) as { id: string };
-  } catch (err) {
-    throw new AppError(401, 'Invalid token');
+  } catch {
+    throw new UnauthorizedError('Invalid token');
   }
 };

@@ -1,7 +1,7 @@
-import { prisma } from '../prisma/client';
-import { MessageRepository } from '../../domain/messages/MessageRepository';
-import { Message } from '../../domain/messages/Message';
-import { LastMessageDTO } from '../../domain/messages/responses';
+import { prisma } from '@/infrastructure/prisma/client';
+import { MessageRepository } from '@/domain/messages/MessageRepository';
+import { Message } from '@/domain/messages/Message';
+import { LastMessageDTO } from '@/domain/messages/responses';
 
 export class MessageRepositoryPrisma implements MessageRepository {
   async sendMessage(senderId: string, receiverId: string, content: string): Promise<Message> {
@@ -23,17 +23,17 @@ export class MessageRepositoryPrisma implements MessageRepository {
   }
 
   async getLastMessages(userId: string): Promise<LastMessageDTO[]> {
-  const messages = await prisma.$queryRaw<
-    {
-      id: string;
-      senderId: string;
-      receiverId: string;
-      content: string;
-      isRead: boolean;
-      createdAt: Date;
-      updatedAt: Date;
-    }[]
-  >`
+    const messages = await prisma.$queryRaw<
+      {
+        id: string;
+        senderId: string;
+        receiverId: string;
+        content: string;
+        isRead: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+      }[]
+    >`
     SELECT DISTINCT ON (
       LEAST("senderId", "receiverId"),
       GREATEST("senderId", "receiverId")
@@ -46,12 +46,11 @@ export class MessageRepositoryPrisma implements MessageRepository {
       "createdAt" DESC
   `;
 
-  return messages.map(m => ({
-    ...m,
-    otherUserId: m.senderId === userId ? m.receiverId : m.senderId,
-  }));
-}
-
+    return messages.map(m => ({
+      ...m,
+      otherUserId: m.senderId === userId ? m.receiverId : m.senderId,
+    }));
+  }
 
   async markAsRead(messageId: string): Promise<Message> {
     return prisma.message.update({
