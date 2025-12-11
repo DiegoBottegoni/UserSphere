@@ -1,67 +1,34 @@
+import 'dotenv/config';
 import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
-import { UserResponseDTO } from '@/domain/users/dto';
-import { ServiceUnavailableError } from '@/infrastructure/errors/ServiceUnavailableError';
+import { AuthUserDTO } from '@/domain/auth/dto';
 import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
+import { toAuthUserDTO } from '@/domain/auth/mapper/toAuthUserDTO';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
 const userRepository = new UserRepositoryPrisma();
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
-export const loginUser = async (email: string, password: string): Promise<LoginResponseDTO> => {
-  try {
-    const user = await userRepository.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedError('User not found');
-    }
+const ACCESS_EXPIRES = '15m';
+const REFRESH_EXPIRES = '7d';
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
-      throw new UnauthorizedError('Invalid password');
-    }
+export const generateTokens = (userId: string) => {
+  const accessToken = jwt.sign({ id: userId }, JWT_ACCESS_SECRET, { expiresIn: ACCESS_EXPIRES });
+  const refreshToken = jwt.sign({ id: userId }, JWT_REFRESH_SECRET, { expiresIn: REFRESH_EXPIRES });
 
-    const updatedUser = await updateUserStatus(user.id, {
-      isOnline: true,
-      lastLoginAt: new Date(),
-      lastSeenAt: new Date(),
-    });
-
-    const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
-
-    return {
-      token,
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        isOnline: updatedUser.isOnline,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
-        lastLoginAt: updatedUser.lastLoginAt,
-        lastSeenAt: updatedUser.lastSeenAt,
-      },
-    };
-  } catch (err: any) {
-    if (err.name === 'PrismaClientInitializationError') {
-      throw new ServiceUnavailableError('Database unavailable');
-    }
-    throw err;
-  }
+  return { accessToken, refreshToken };
 };
 
-export const registerUser = async (
-  name: string,
+export const loginUser = async (
   email: string,
   password: string
-): Promise<RegisterResponseDTO> => {
-  const hashedPassword = await bcrypt.hash(password, 10);
+): Promise<{ user: AuthUserDTO; accessToken: string; refreshToken: string }> => {
+  const user = await userRepository.findByEmail(email);
+  if (!user) throw new UnauthorizedError('User not found');
 
-  const user = await userRepository.create({
-    name,
-    email,
-    passwordHash: hashedPassword,
-  });
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) throw new UnauthorizedError('Invalid password');
 
   const updatedUser = await userRepository.update(user.id, {
     isOnline: true,
@@ -69,64 +36,62 @@ export const registerUser = async (
     lastSeenAt: new Date(),
   });
 
-  const token = jwt.sign({ id: updatedUser.id }, JWT_SECRET, { expiresIn: '1h' });
+  const { accessToken, refreshToken } = generateTokens(updatedUser.id);
 
   return {
-    token,
-    user: {
-      id: updatedUser!.id,
-      name: updatedUser!.name,
-      email: updatedUser!.email,
-      isOnline: updatedUser!.isOnline,
-      createdAt: updatedUser!.createdAt,
-      updatedAt: updatedUser!.updatedAt,
-      lastLoginAt: updatedUser!.lastLoginAt,
-      lastSeenAt: updatedUser!.lastSeenAt,
-    },
+    accessToken,
+    refreshToken,
+    user: toAuthUserDTO(updatedUser),
   };
 };
 
-export const updateUserStatus = async (
-  id: string,
-  status: {
-    isOnline?: boolean;
-    lastLoginAt?: Date;
-    lastSeenAt?: Date;
-  }
-): Promise<UserResponseDTO> => {
-  const user = await userRepository.update(id, status);
+export const registerUser = async (
+  name: string,
+  email: string,
+  password: string
+): Promise<{ user: AuthUserDTO; accessToken: string; refreshToken: string }> => {
+  const hashed = await bcrypt.hash(password, 10);
+
+  const user = await userRepository.create({
+    name,
+    email,
+    passwordHash: hashed,
+  });
+
+  const updated = await userRepository.update(user.id, {
+    isOnline: true,
+    lastLoginAt: new Date(),
+    lastSeenAt: new Date(),
+  });
+
+  const { accessToken, refreshToken } = generateTokens(updated.id);
 
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    isOnline: user.isOnline,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    profileUpdatedAt: user.profileUpdatedAt,
-    lastLoginAt: user.lastLoginAt,
-    lastSeenAt: user.lastSeenAt,
+    user: toAuthUserDTO(updated),
+    accessToken,
+    refreshToken,
   };
 };
 
-export const logoutUser = async (userId: string): Promise<void> => {
+export const refreshAccessToken = async (token: string) => {
   try {
-    await updateUserStatus(userId, {
-      isOnline: false,
-      lastSeenAt: new Date(),
+    const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as { id: string };
+    const user = await userRepository.findById(decoded.id);
+    if (!user) throw new UnauthorizedError('User no longer exists');
+
+    const accessToken = jwt.sign({ id: decoded.id }, JWT_ACCESS_SECRET, {
+      expiresIn: ACCESS_EXPIRES,
     });
-  } catch (err: any) {
-    if (err.name === 'PrismaClientInitializationError') {
-      throw new ServiceUnavailableError('Database unavailable');
-    }
-    throw err;
+
+    return accessToken;
+  } catch {
+    throw new UnauthorizedError('Invalid refresh token');
   }
 };
 
-export const verifyToken = (token: string) => {
-  try {
-    return jwt.verify(token, JWT_SECRET) as { id: string };
-  } catch {
-    throw new UnauthorizedError('Invalid token');
-  }
+export const logoutUser = async (userId: string) => {
+  await userRepository.update(userId, {
+    isOnline: false,
+    lastSeenAt: new Date(),
+  });
 };

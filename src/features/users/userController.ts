@@ -8,6 +8,8 @@ import {
 } from '@/features/users/userService';
 import { CreateUserDTO, UpdateUserDTO } from '@/domain/users/dto';
 import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
+import { io } from '@/server';
+import { connectedUsers } from '@/infrastructure/socket/connectedUsers';
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -48,17 +50,19 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
     const { id } = req.params;
     const userIdFromToken = req.user?.id;
 
-    if (!id) {
-      throw new BadRequestError('Missing user id');
-    }
-
-    if (userIdFromToken !== id) {
+    if (!id) throw new BadRequestError('Missing user id');
+    if (userIdFromToken !== id)
       return res.status(403).json({ error: 'You are not authorized to update this user' });
-    }
 
     const data: UpdateUserDTO = req.body;
-    const user = await updateUser(id, data);
-    return res.json(user);
+    const updatedUser = await updateUser(id, data);
+
+    // 🔥 Emitir evento solo a usuarios conectados
+    connectedUsers.forEach((socketId, userId) => {
+      if (userId !== id) io.to(socketId).emit('user:updated', updatedUser);
+    });
+
+    return res.json(updatedUser);
   } catch (err: any) {
     next(err);
     return;

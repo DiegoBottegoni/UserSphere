@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import * as messageService from '@/features/messages/messageService';
 import { io } from '@/server';
+import { connectedUsers } from '@/infrastructure/socket/connectedUsers'; // si lo exportamos desde socketHandler
 
+// ============================
+// POST /messages
+// ============================
 export const sendMessage = async (req: Request, res: Response) => {
   try {
     const senderId = req.user?.id;
@@ -13,7 +17,17 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     const message = await messageService.sendMessage(senderId, receiverId, content);
 
-    io.emit('message:new', message);
+    // 🔔 Emitir al receptor si está online
+    const receiverSocketId = connectedUsers.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('message:new', message);
+    }
+
+    // 🔔 Emitir confirmación al remitente (aunque sea vía API)
+    const senderSocketId = connectedUsers.get(senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit('message:sent', message);
+    }
 
     return res.status(201).json(message);
   } catch (error) {
@@ -22,6 +36,9 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
+// ============================
+// GET /messages/conversation/:otherUserId
+// ============================
 export const getConversation = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -39,6 +56,9 @@ export const getConversation = async (req: Request, res: Response) => {
   }
 };
 
+// ============================
+// GET /messages/last
+// ============================
 export const getLastMessages = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -54,6 +74,9 @@ export const getLastMessages = async (req: Request, res: Response) => {
   }
 };
 
+// ============================
+// PATCH /messages/:messageId/read
+// ============================
 export const markAsRead = async (req: Request, res: Response) => {
   try {
     const { messageId } = req.params;
@@ -69,7 +92,14 @@ export const markAsRead = async (req: Request, res: Response) => {
 
     const message = await messageService.markAsRead(messageId, userId);
 
-    io.emit('message:read', { messageId, readerId: userId });
+    // 🔔 Emitir evento al emisor si está online
+    const senderSocketId = connectedUsers.get(message.senderId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit('message:read', {
+        messageId,
+        readerId: userId,
+      });
+    }
 
     return res.json(message);
   } catch (error) {
@@ -78,15 +108,20 @@ export const markAsRead = async (req: Request, res: Response) => {
   }
 };
 
+// ============================
+// DELETE /messages/:messageId
+// ============================
 export const deleteMessage = async (req: Request, res: Response) => {
   try {
     const { messageId } = req.params;
+
     if (!messageId) {
       return res.status(400).json({ message: 'Message ID is required' });
     }
 
     await messageService.deleteMessage(messageId);
 
+    // 🔔 Emitir evento a cualquier usuario conectado que corresponda
     io.emit('message:deleted', { messageId });
 
     return res.json({ message: 'Message deleted' });

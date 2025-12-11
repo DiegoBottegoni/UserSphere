@@ -1,62 +1,53 @@
 import { Server, Socket } from 'socket.io';
 import { prisma } from '@/infrastructure/prisma/client';
 import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
+import { connectedUsers } from '@/infrastructure/socket/connectedUsers';
 
-// 🧩 Registro global de conexiones activas
-const connectedUsers = new Map<string, string>(); // userId -> socketId
 const userRepository = new UserRepositoryPrisma();
 
 export const setupSocket = (io: Server) => {
   io.on('connection', async (socket: Socket) => {
-    console.log('🟢 New client connected:', socket.id);
+    console.log('🟢 Client connected:', socket.id);
 
-    // 🧩 Registrar usuario y guardar su socket
+    // ✅ Recuperamos el userId cuando el cliente se registra
     socket.on('register', async (userId: string) => {
       try {
         socket.data.userId = userId;
-        connectedUsers.set(userId, socket.id); // Guardamos el socket.id asociado al userId
+        connectedUsers.set(userId, socket.id);
 
         await userRepository.update(userId, {
           isOnline: true,
-          lastLoginAt: new Date(),
+          lastSeenAt: new Date(),
         });
 
-        console.log(`✅ User ${userId} registered (socket: ${socket.id})`);
         io.emit('user:online', userId);
+        console.log(`User ${userId} registered on socket ${socket.id}`);
       } catch (err) {
-        console.error('❌ Error registering user:', err);
+        console.error('Registration error:', err);
       }
     });
 
     // ✉️ Enviar mensaje
-    socket.on('message:send', async data => {
+    socket.on('message:send', async ({ senderId, receiverId, content }) => {
       try {
-        const { senderId, receiverId, content } = data;
+        if (!socket.data.userId || socket.data.userId !== senderId) return;
 
         const message = await prisma.message.create({
           data: { senderId, receiverId, content },
         });
 
-        console.log(`💬 Message created from ${senderId} to ${receiverId}`);
-
-        // Buscar el socket del receptor
-        const receiverSocketId = connectedUsers.get(receiverId);
-
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit('message:new', message);
-          console.log(`📨 Sent to receiver socket ${receiverSocketId}`);
-        } else {
-          console.log(`⚠️ Receiver ${receiverId} is offline`);
+        const receiverSocket = connectedUsers.get(receiverId);
+        if (receiverSocket) {
+          io.to(receiverSocket).emit('message:new', message);
         }
 
-        // Emitir confirmación al emisor
         io.to(socket.id).emit('message:sent', message);
       } catch (err) {
-        console.error('❌ Error sending message:', err);
+        console.error('Error sending message:', err);
       }
     });
 
-    // 👁️ Marcar mensaje como leído
+    // 👁️ Marcar como leído
     socket.on('message:read', async (messageId: string) => {
       try {
         const updated = await prisma.message.update({
@@ -64,38 +55,36 @@ export const setupSocket = (io: Server) => {
           data: { isRead: true },
         });
 
-        console.log(`👁️ Message ${messageId} marked as read`);
-
-        // Notificar al emisor original si está online
-        const senderSocketId = connectedUsers.get(updated.senderId);
-        if (senderSocketId) {
-          io.to(senderSocketId).emit('message:read', updated);
+        const senderSocket = connectedUsers.get(updated.senderId);
+        if (senderSocket) {
+          io.to(senderSocket).emit('message:read', updated);
         }
 
-        // También podés notificar al lector (opcional)
         io.to(socket.id).emit('message:read', updated);
       } catch (err) {
-        console.error('❌ Error marking message as read:', err);
+        console.error('Error marking message as read:', err);
       }
     });
 
     // 🔌 Desconexión
     socket.on('disconnect', async () => {
       const userId = socket.data.userId;
+      if (!userId) {
+        console.log(`Client disconnected without userId: ${socket.id}`);
+        return;
+      }
 
-      if (userId) {
-        connectedUsers.delete(userId);
+      connectedUsers.delete(userId);
 
-        try {
-          await userRepository.update(userId, {
-            isOnline: false,
-            lastSeenAt: new Date(),
-          });
+      try {
+        await userRepository.update(userId, {
+          isOnline: false,
+          lastSeenAt: new Date(),
+        });
 
-          io.emit('user:offline', userId);
-        } catch (err) {
-          console.error('❌ Error on disconnect:', err);
-        }
+        io.emit('user:offline', userId);
+      } catch (err) {
+        console.error('Disconnect error:', err);
       }
 
       console.log(`🔴 Client disconnected: ${socket.id}`);

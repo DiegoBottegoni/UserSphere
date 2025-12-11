@@ -1,14 +1,28 @@
-import type { Request, Response, NextFunction } from 'express';
-import { registerUser, loginUser, logoutUser } from '@/features/auth/authService';
-import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
-import type { LoginResponseDTO, RegisterResponseDTO } from '@/domain/auth/dto';
+import { Request, Response, NextFunction } from 'express';
+import { loginUser, registerUser, logoutUser, refreshAccessToken } from './authService';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
-    const response: RegisterResponseDTO = await registerUser(name, email, password);
-    res.status(201).json(response);
-  } catch (err: any) {
+
+    const { user, accessToken, refreshToken } = await registerUser(name, email, password);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 15,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    res.status(201).json({ user });
+  } catch (err) {
     next(err);
   }
 };
@@ -16,21 +30,62 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
-    const response: LoginResponseDTO = await loginUser(email, password);
-    res.json(response);
-  } catch (err: any) {
+
+    const { user, accessToken, refreshToken } = await loginUser(email, password);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 15,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+
+    res.json({ user });
+  } catch (err) {
     next(err);
+  }
+};
+
+export const me = async (req: Request, res: Response) => {
+  res.json({ user: req.user });
+};
+
+export const refresh = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.status(401).json({ message: 'Missing refresh token' });
+
+    const newAccessToken = await refreshAccessToken(refreshToken);
+
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 15,
+    });
+
+    return res.json({ ok: true });
+  } catch (err) {
+    return next(err);
   }
 };
 
 export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = (req as any).user?.id;
-    if (!userId) throw new UnauthorizedError('User not authenticated');
+    await logoutUser(req.user!.id);
 
-    await logoutUser(userId);
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
     res.json({ message: 'Logout successful' });
-  } catch (err: any) {
+  } catch (err) {
     next(err);
   }
 };

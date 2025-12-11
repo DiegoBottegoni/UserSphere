@@ -1,2 +1,1 @@
-export * from './LoginResponseDTO';
-export * from './RegisterResponseDTO';
+export * from './dto';

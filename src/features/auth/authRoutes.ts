@@ -1,19 +1,14 @@
 import { Router } from 'express';
-import { register, login, logout } from '@/features/auth/authController';
+import { register, login, logout, me, refresh } from './authController';
 import { verifyUserSession } from '@/infrastructure/middleware/authMiddleware';
 
 const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.post('/logout', verifyUserSession, logout);
+router.post('/refresh', refresh);
 
-// Ruta protegida de prueba
-router.get('/me', verifyUserSession, (req, res) => {
-  res.json({
-    message: 'Authenticated user',
-    user: req.user,
-  });
-});
+router.get('/me', verifyUserSession, me);
+router.post('/logout', verifyUserSession, logout);
 
 export default router;

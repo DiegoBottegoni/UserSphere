@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import { Server as SocketIOServer } from 'socket.io';
+import cookieParser from 'cookie-parser';
 
 import authRoutes from '@/features/auth/authRoutes';
 import userRoutes from '@/features/users/userRoutes';
@@ -27,6 +28,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 export const io = new SocketIOServer(server, {
   cors: {

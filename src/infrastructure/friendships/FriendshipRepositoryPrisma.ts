@@ -21,7 +21,7 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
     });
   }
 
-  async rejectRequest(friendshipId: string): Promise<void> {
+  async rejectRequest(friendshipId: string): Promise<{ requesterId: string; receiverId: string }> {
     const friendship = await prisma.friendship.findUnique({
       where: { id: friendshipId },
     });
@@ -44,6 +44,8 @@ export class FriendshipRepositoryPrisma implements FriendshipRepository {
     await prisma.friendship.delete({
       where: { id: friendshipId },
     });
+
+    return { requesterId, receiverId };
   }
 
   async blockUser(friendshipId: string): Promise<Friendship> {
