@@ -5,12 +5,15 @@ build
 
 # Env files
 .env
+.env.test
 .env.local
 .env.*.local
 
-# Prisma SQLite (por si alguna vez usás SQLite en dev/testing)
+# Prisma 
 prisma/*.db
 prisma/*.db-journal
+prisma/.env
+prisma/.env.test
 
 # Logs
 *.log
