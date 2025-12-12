@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as messageService from '@/features/messages/messageService';
 import { io } from '@/server';
-import { connectedUsers } from '@/infrastructure/socket/connectedUsers'; // si lo exportamos desde socketHandler
+import { connectedUsers } from '@/infrastructure/socket/connectedUsers';
 
 // ============================
 // POST /messages

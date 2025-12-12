@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/infrastructure/prisma/client';
 import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import { connectedUsers } from '@/infrastructure/socket/connectedUsers';
@@ -23,7 +24,11 @@ export const setupSocket = (io: Server) => {
         io.emit('user:online', userId);
         console.log(`User ${userId} registered on socket ${socket.id}`);
       } catch (err) {
-        console.error('Registration error:', err);
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+          console.warn(`⚠️  Registration failed: User ${userId} not found in database.`);
+        } else {
+          console.error('Registration error:', err);
+        }
       }
     });
 
@@ -43,7 +48,11 @@ export const setupSocket = (io: Server) => {
 
         io.to(socket.id).emit('message:sent', message);
       } catch (err) {
-        console.error('Error sending message:', err);
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+          console.warn(`⚠️  Message send failed: Sender or Receiver not found.`);
+        } else {
+          console.error('Error sending message:', err);
+        }
       }
     });
 
@@ -62,7 +71,11 @@ export const setupSocket = (io: Server) => {
 
         io.to(socket.id).emit('message:read', updated);
       } catch (err) {
-        console.error('Error marking message as read:', err);
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+          console.warn(`⚠️  Mark read failed: Message ${messageId} not found.`);
+        } else {
+          console.error('Error marking message as read:', err);
+        }
       }
     });
 
@@ -84,7 +97,11 @@ export const setupSocket = (io: Server) => {
 
         io.emit('user:offline', userId);
       } catch (err) {
-        console.error('Disconnect error:', err);
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+          // User already deleted or missing, ignore.
+        } else {
+          console.error('Disconnect error:', err);
+        }
       }
 
       console.log(`🔴 Client disconnected: ${socket.id}`);

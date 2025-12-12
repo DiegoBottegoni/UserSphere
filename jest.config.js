@@ -9,11 +9,17 @@ module.exports = {
 
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
+    '^@/features/(.*)$': '<rootDir>/src/features/$1',
+    '^@/domain/(.*)$': '<rootDir>/src/domain/$1',
   },
 
-  setupFiles: [path.resolve(__dirname, 'tests/setupEnv.ts')],
+  setupFiles: ['tsconfig-paths/register', path.resolve(__dirname, 'tests/setupEnv.ts')],
 
-  setupFilesAfterEnv: [path.resolve(__dirname, 'tests/setupMocks.ts')],
+  setupFilesAfterEnv: [
+    path.resolve(__dirname, 'tests/setupMocks.ts'),
+    path.resolve(__dirname, 'tests/setupTests.ts'),
+  ],
 
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
 };

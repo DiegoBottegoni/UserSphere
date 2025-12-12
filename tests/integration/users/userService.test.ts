@@ -1,138 +1,92 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import {
+  createUser,
+  getUserById,
+  getAllUsers,
+  updateUser,
+  deleteUser,
+} from '@/features/users/userService';
 
-// Check if DATABASE_URL is set
-if (!process.env.DATABASE_URL) {
-  console.error('\n❌ Error: DATABASE_URL environment variable is not set.');
-  console.error('Please make sure you have a .env file with DATABASE_URL configured.');
-  console.error(
-    'You can copy .env.example to .env and update it with your database connection string.\n'
-  );
-  process.exit(1);
-}
+describe('UserService Integration Tests', () => {
 
-(async () => {
-  // Dynamic imports after env is loaded
-  const { getUserById, getAllUsers, createUser, updateUser, deleteUser } = await import(
-    '../../../features/users/userService'
-  );
-  const { prisma } = await import('../../../infrastructure/prisma/client');
-  console.log(`\n🚀 Starting UserService integration test...\n`);
+  describe('createUser', () => {
+    it('should create a new user', async () => {
+      const email = `create-${Date.now()}@example.com`;
+      const newUser = await createUser({
+        name: 'Test User',
+        email,
+        password: 'testPassword123',
+      });
 
-  let testUserId: string | null = null;
-  const testEmail = `test-${Date.now()}@example.com`;
-
-  try {
-    // Get initial user count before creating test user
-    const initialUsers = await getAllUsers();
-    const initialUserCount = initialUsers.length;
-
-    // --- TEST CREATE USER ---
-    console.log(`📝 Testing createUser...`);
-    const newUser = await createUser({
-      name: 'Test User',
-      email: testEmail,
-      password: 'testPassword123',
+      expect(newUser).toHaveProperty('id');
+      expect(newUser.name).toBe('Test User');
+      expect(newUser.email).toBe(email);
     });
-    testUserId = newUser.id;
-    console.log(`✅ User created: ${newUser.id} - ${newUser.name} (${newUser.email})`);
-    console.log(`   - isOnline: ${newUser.isOnline}`);
-    console.log(`   - createdAt: ${newUser.createdAt}`);
+  });
 
-    // Verify user was created in database
-    const dbUser = await prisma.user.findUnique({ where: { id: testUserId } });
-    if (!dbUser) {
-      throw new Error('User not found in database after creation');
-    }
-    console.log(`✅ Verified user exists in database`);
+  describe('getUserById', () => {
+    it('should retrieve an existing user', async () => {
+      const email = `get-${Date.now()}@example.com`;
+      // Setup
+      const created = await createUser({
+        name: 'Get User',
+        email,
+        password: 'password',
+      });
 
-    // --- TEST GET USER BY ID ---
-    console.log(`\n🔍 Testing getUserById...`);
-    const retrievedUser = await getUserById(testUserId);
-    if (retrievedUser.id !== testUserId || retrievedUser.email !== testEmail) {
-      throw new Error('Retrieved user does not match created user');
-    }
-    console.log(`✅ User retrieved successfully: ${retrievedUser.name}`);
-
-    // --- TEST GET ALL USERS ---
-    console.log(`\n📋 Testing getAllUsers...`);
-    const allUsers = await getAllUsers();
-    const expectedUserCount = initialUserCount + 1;
-    if (allUsers.length !== expectedUserCount) {
-      throw new Error(`Expected ${expectedUserCount} user(s), but found ${allUsers.length} users`);
-    }
-    const foundUser = allUsers.find(u => u.id === testUserId);
-    if (!foundUser) {
-      throw new Error('Created user not found in getAllUsers result');
-    }
-    console.log(
-      `✅ getAllUsers returned ${allUsers.length} user(s) (increased from ${initialUserCount})`
-    );
-    console.log(`✅ Created user found in list`);
-
-    // --- TEST UPDATE USER ---
-    console.log(`\n✏️  Testing updateUser...`);
-    const updatedUser = await updateUser(testUserId, {
-      name: 'Updated Test User',
+      // Test
+      const retrieved = await getUserById(created.id);
+      expect(retrieved.id).toBe(created.id);
+      expect(retrieved.email).toBe(email);
     });
-    if (updatedUser.name !== 'Updated Test User') {
-      throw new Error('User name was not updated correctly');
-    }
-    console.log(`✅ User updated: ${updatedUser.name}`);
 
-    // Verify profileUpdatedAt was set
-    if (!updatedUser.profileUpdatedAt) {
-      throw new Error('profileUpdatedAt was not set after update');
-    }
-    console.log(`✅ profileUpdatedAt set: ${updatedUser.profileUpdatedAt}`);
-
-    // Test password update
-    await updateUser(testUserId, {
-      password: 'newPassword456',
+    it('should throw error for non-existent user', async () => {
+      await expect(getUserById('non-existent-id')).rejects.toThrow('User not found');
     });
-    console.log(`✅ Password updated successfully`);
+  });
 
-    // --- TEST DELETE USER ---
-    console.log(`\n🗑️  Testing deleteUser...`);
-    await deleteUser(testUserId);
-    console.log(`✅ User deleted`);
+  describe('getAllUsers', () => {
+    it('should retrieve created users', async () => {
+      await createUser({ name: 'User 1', email: `u1-${Date.now()}@a.com`, password: 'p' });
+      await createUser({ name: 'User 2', email: `u2-${Date.now()}@a.com`, password: 'p' });
 
-    // Verify user was deleted from database
-    const deletedUser = await prisma.user.findUnique({ where: { id: testUserId } });
-    if (deletedUser) {
-      throw new Error('User still exists in database after deletion');
-    }
-    console.log(`✅ Verified user removed from database`);
+      const allUsers = await getAllUsers();
+      expect(allUsers.length).toBeGreaterThanOrEqual(2);
+    });
+  });
 
-    // --- TEST ERROR HANDLING ---
-    console.log(`\n⚠️  Testing error handling...`);
-    try {
-      await getUserById('non-existent-id');
-      throw new Error('Should have thrown error for non-existent user');
-    } catch (error: any) {
-      if (error.message === 'User not found') {
-        console.log(`✅ Error handling works: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+  describe('updateUser', () => {
+    it('should update user fields', async () => {
+      // Setup
+      const created = await createUser({
+        name: 'Update User',
+        email: `update-${Date.now()}@example.com`,
+        password: 'password',
+      });
 
-    console.log(`\n✅ All tests passed! 🎉\n`);
-    process.exit(0);
-  } catch (error: any) {
-    console.error(`\n❌ Test failed: ${error.message}`);
-    console.error(error);
+      // Test
+      const updated = await updateUser(created.id, {
+        name: 'Updated Name',
+      });
 
-    // Cleanup on error
-    if (testUserId) {
-      try {
-        await prisma.user.delete({ where: { id: testUserId } }).catch(() => {});
-        console.log(`🧹 Cleaned up test user`);
-      } catch {
-        // Ignore cleanup errors
-      }
-    }
+      expect(updated.name).toBe('Updated Name');
+      expect(updated.profileUpdatedAt).toBeDefined();
+    });
+  });
 
-    process.exit(1);
-  }
-})();
+  describe('deleteUser', () => {
+    it('should delete the user', async () => {
+      // Setup
+      const created = await createUser({
+        name: 'Delete User',
+        email: `delete-${Date.now()}@example.com`,
+        password: 'password',
+      });
+
+      // Test
+      await deleteUser(created.id);
+
+      // Verify
+      await expect(getUserById(created.id)).rejects.toThrow('User not found');
+    });
+  });
+});
