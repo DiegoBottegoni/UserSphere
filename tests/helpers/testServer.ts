@@ -1,17 +1,21 @@
 import request from 'supertest';
-import app from '@/app';
+import { createApp } from '@/app';
 import { prisma } from '@/infrastructure/prisma/client';
+
+// Initialize app once for tests
+const app = createApp();
 
 // Limpia TODAS las tablas antes de cada test
 export const resetDatabase = async () => {
-  const modelNames = Object.keys(prisma).filter(key => {
+  const prismaClient = prisma as any;
+  const modelNames = Object.keys(prismaClient).filter(key => {
     // identifica modelos Prisma válidos
-    return typeof prisma[key]?.deleteMany === 'function';
+    return typeof prismaClient[key]?.deleteMany === 'function';
   });
 
   for (const model of modelNames) {
     try {
-      await prisma[model].deleteMany();
+      await prismaClient[model].deleteMany();
     } catch (err) {}
   }
 };
