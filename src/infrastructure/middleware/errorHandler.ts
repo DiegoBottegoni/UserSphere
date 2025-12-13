@@ -6,6 +6,7 @@ import { AppError } from '@/infrastructure/errors/AppError';
  * Catches Prisma errors, Auth errors, Validation errors, etc.
  */
 export const errorHandler = (err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // eslint-disable-line @typescript-eslint/no-explicit-any
   console.error('🔥 Error caught by middleware:', err);
   console.error('🔥 Error details:', {
     message: err.message,

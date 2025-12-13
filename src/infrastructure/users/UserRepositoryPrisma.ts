@@ -16,7 +16,12 @@ export class UserRepositoryPrisma implements UserRepository {
     return prisma.user.findMany();
   }
 
-  async create(data: { name: string; email: string; passwordHash: string }): Promise<User> {
+  async create(data: {
+    name: string;
+    email: string;
+    passwordHash?: string;
+    googleId?: string;
+  }): Promise<User> {
     return prisma.user.create({
       data,
     });
@@ -30,6 +35,7 @@ export class UserRepositoryPrisma implements UserRepository {
       isOnline?: boolean;
       lastLoginAt?: Date;
       lastSeenAt?: Date;
+      googleId?: string;
     }
   ): Promise<User> {
     return prisma.user.update({

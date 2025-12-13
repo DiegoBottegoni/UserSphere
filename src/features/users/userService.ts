@@ -61,7 +61,7 @@ export const createUser = async (data: CreateUserDTO): Promise<UserResponseDTO> 
 
 export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserResponseDTO> => {
   const { password, ...rest } = data;
-  const updateData: any = { ...rest };
+  const updateData: any = { ...rest }; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   if (password) {
     updateData.passwordHash = await bcrypt.hash(password, 10);

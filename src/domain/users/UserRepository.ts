@@ -5,7 +5,12 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
-  create(data: { name: string; email: string; passwordHash: string }): Promise<User>;
+  create(data: {
+    name: string;
+    email: string;
+    passwordHash?: string;
+    googleId?: string;
+  }): Promise<User>;
   update(
     id: string,
     data: Partial<UpdateUserDTO> & {
@@ -14,6 +19,7 @@ export interface UserRepository {
       isOnline?: boolean;
       lastLoginAt?: Date;
       lastSeenAt?: Date;
+      googleId?: string;
     }
   ): Promise<User>;
   delete(id: string): Promise<void>;

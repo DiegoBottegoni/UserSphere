@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { AuthUserDTO } from '@/domain/auth/dto';
 import { UnauthorizedError } from '@/infrastructure/errors/UnauthorizedError';
 import { toAuthUserDTO } from '@/domain/auth/mapper/toAuthUserDTO';
@@ -9,6 +10,11 @@ import { toAuthUserDTO } from '@/domain/auth/mapper/toAuthUserDTO';
 const userRepository = new UserRepositoryPrisma();
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL);
 
 const ACCESS_EXPIRES = '15m';
 const REFRESH_EXPIRES = '7d';
@@ -26,6 +32,8 @@ export const loginUser = async (
 ): Promise<{ user: AuthUserDTO; accessToken: string; refreshToken: string }> => {
   const user = await userRepository.findByEmail(email);
   if (!user) throw new UnauthorizedError('User not found');
+
+  if (!user.passwordHash) throw new UnauthorizedError('Invalid password');
 
   const isValid = await bcrypt.compare(password, user.passwordHash);
   if (!isValid) throw new UnauthorizedError('Invalid password');
@@ -94,4 +102,64 @@ export const logoutUser = async (userId: string) => {
     isOnline: false,
     lastSeenAt: new Date(),
   });
+};
+
+export const getGoogleAuthURL = () => {
+  return googleClient.generateAuthUrl({
+    access_type: 'offline',
+    scope: ['profile', 'email'],
+  });
+};
+
+export const loginWithGoogle = async (
+  code: string
+): Promise<{ user: AuthUserDTO; accessToken: string; refreshToken: string }> => {
+  try {
+    const { tokens } = await googleClient.getToken(code);
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token!,
+      audience: GOOGLE_CLIENT_ID!,
+    });
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.email) {
+      throw new UnauthorizedError('Invalid Google token');
+    }
+
+    const { email, name, sub: googleId } = payload;
+
+    let user = await userRepository.findByEmail(email);
+
+    if (!user) {
+      user = await userRepository.create({
+        name: name || 'Google User',
+        email,
+        googleId,
+      });
+    }
+
+    // Link googleId if not present
+    if (user && !user.googleId) {
+      user = await userRepository.update(user.id, {
+        googleId: googleId,
+      });
+    }
+
+    const updatedUser = await userRepository.update(user.id, {
+      isOnline: true,
+      lastLoginAt: new Date(),
+      lastSeenAt: new Date(),
+    });
+
+    const { accessToken, refreshToken } = generateTokens(updatedUser.id);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: toAuthUserDTO(updatedUser),
+    };
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    throw new UnauthorizedError('Google authentication failed');
+  }
 };
