@@ -25,6 +25,7 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @default(now()) @updatedAt
   profileUpdatedAt DateTime?
+  role             Role      @default(USER)
 
   friendshipsSent     Friendship[] @relation("requester")
   friendshipsReceived Friendship[] @relation("receiver")
@@ -60,4 +61,9 @@ model Message {
   isRead     Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now()) @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }
