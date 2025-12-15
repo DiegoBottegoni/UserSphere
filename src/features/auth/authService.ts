@@ -108,6 +108,7 @@ export const getGoogleAuthURL = () => {
   return googleClient.generateAuthUrl({
     access_type: 'offline',
     scope: ['profile', 'email'],
+    prompt: 'select_account', // Force Google to show account picker
   });
 };
 
