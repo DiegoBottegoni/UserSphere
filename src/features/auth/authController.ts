@@ -111,23 +111,26 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       return;
     }
 
-    const { user, accessToken, refreshToken } = await loginWithGoogle(code as string);
+    const { accessToken, refreshToken } = await loginWithGoogle(code as string);
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: false,
+      secure: false, // Set to true in production if SSL
       sameSite: 'strict',
       maxAge: 1000 * 60 * 15,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: false, // Set to true in production if SSL
       sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    res.json({ user });
+    // Redirect to the frontend application
+    // Ideally this URL should be in environment variables (e.g. CLIENT_URL)
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    res.redirect(clientUrl);
   } catch (err) {
     next(err);
   }
