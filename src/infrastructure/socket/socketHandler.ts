@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { Prisma } from '@prisma/client';
+import { Prisma, MessageStatus } from '@prisma/client';
 import { prisma } from '@/infrastructure/prisma/client';
 import { UserRepositoryPrisma } from '@/infrastructure/users/UserRepositoryPrisma';
 import { connectedUsers } from '@/infrastructure/socket/connectedUsers';
@@ -33,35 +33,60 @@ export const setupSocket = (io: Server) => {
     });
 
     // ✉️ Enviar mensaje
-    socket.on('message:send', async ({ senderId, receiverId, content }) => {
-      try {
-        if (!socket.data.userId || socket.data.userId !== senderId) return;
+    socket.on(
+      'message:send',
+      async ({
+        senderId,
+        receiverId,
+        content,
+      }: {
+        senderId: string;
+        receiverId: string;
+        content: string;
+      }) => {
+        try {
+          if (!socket.data.userId || socket.data.userId !== senderId) return;
 
-        const message = await prisma.message.create({
-          data: { senderId, receiverId, content },
-        });
+          const receiverSocket = connectedUsers.get(receiverId);
+          const initialStatus = receiverSocket ? MessageStatus.DELIVERED : MessageStatus.SENT;
 
-        const receiverSocket = connectedUsers.get(receiverId);
-        if (receiverSocket) {
-          io.to(receiverSocket).emit('message:new', message);
-        }
+          const message = await prisma.message.create({
+            data: {
+              senderId,
+              receiverId,
+              content,
+              status: initialStatus,
+            },
+            include: {
+              sender: { select: { id: true, name: true, email: true, isOnline: true } },
+              receiver: { select: { id: true, name: true, email: true, isOnline: true } },
+            },
+          });
 
-        io.to(socket.id).emit('message:sent', message);
-      } catch (err) {
-        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
-          console.warn(`⚠️  Message send failed: Sender or Receiver not found.`);
-        } else {
-          console.error('Error sending message:', err);
+          // Add 'otherUser' for DTO compatibility if needed, but frontend handles `sender/receiver` objects now.
+          // We emit the full message.
+
+          if (receiverSocket) {
+            io.to(receiverSocket).emit('message:new', message);
+          }
+
+          io.to(socket.id).emit('message:sent', message);
+        } catch (err) {
+          if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+            console.warn(`⚠️  Message send failed: Sender or Receiver not found.`);
+          } else {
+            console.error('Error sending message:', err);
+          }
         }
       }
-    });
+    );
 
     // 👁️ Marcar como leído
     socket.on('message:read', async (messageId: string) => {
       try {
         const updated = await prisma.message.update({
           where: { id: messageId },
-          data: { isRead: true },
+          data: { status: MessageStatus.READ },
         });
 
         const senderSocket = connectedUsers.get(updated.senderId);

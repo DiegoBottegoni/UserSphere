@@ -58,9 +58,15 @@ model Message {
   receiver   User     @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   receiverId String
   content    String
-  isRead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
+  status     MessageStatus @default(SENT)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @default(now()) @updatedAt
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
 }
 
 enum Role {

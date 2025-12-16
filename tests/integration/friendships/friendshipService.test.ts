@@ -97,7 +97,7 @@ describe('FriendshipService Integration Tests', () => {
       expect(pending.length).toBeGreaterThanOrEqual(1);
       expect(pending[0]).toBeDefined();
       expect(pending[0]!.status).toBe('PENDING');
-      expect(pending[0]!.friend.id).toBe(aliceId); // friend is the requester
+      expect(pending[0]!.requester?.id).toBe(aliceId); 
     });
   });
 
@@ -110,7 +110,7 @@ describe('FriendshipService Integration Tests', () => {
       expect(sent.length).toBeGreaterThanOrEqual(1);
       expect(sent[0]).toBeDefined();
       expect(sent[0]!.status).toBe('PENDING');
-      expect(sent[0]!.friend.id).toBe(bobId); // friend is the receiver
+      expect(sent[0]!.receiver?.id).toBe(bobId); 
     });
   });
 

@@ -42,7 +42,7 @@ describe('MessageService Integration Tests', () => {
       expect(message.senderId).toBe(aliceId);
       expect(message.receiverId).toBe(bobId);
       expect(message.content).toBe('Hello Bob!');
-      expect(message.isRead).toBe(false);
+      expect(message.status).toBe('SENT');
     });
   });
 
@@ -96,7 +96,7 @@ describe('MessageService Integration Tests', () => {
 
       const updated = await markAsRead(message.id, bobId);
 
-      expect(updated.isRead).toBe(true);
+      expect(updated.status).toBe('READ');
     });
 
     it('should throw BadRequestError if sender tries to mark own message', async () => {
