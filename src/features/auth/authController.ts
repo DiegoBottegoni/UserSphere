@@ -17,14 +17,14 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 15,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -43,14 +43,14 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 15,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -74,7 +74,7 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 15,
     });
 
@@ -116,14 +116,14 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: false, // Set to true in production if SSL
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 15,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: false, // Set to true in production if SSL
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
