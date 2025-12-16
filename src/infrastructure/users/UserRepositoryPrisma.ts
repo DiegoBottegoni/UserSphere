@@ -47,4 +47,16 @@ export class UserRepositoryPrisma implements UserRepository {
   async delete(id: string): Promise<void> {
     await prisma.user.delete({ where: { id } });
   }
+
+  async searchByNameOrEmail(query: string): Promise<User[]> {
+    return prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      take: 20, // Limit results to 20 users
+    });
+  }
 }

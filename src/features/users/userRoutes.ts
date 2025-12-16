@@ -6,6 +6,7 @@ import {
   createNewUser,
   updateExistingUser,
   removeUser,
+  searchUsers,
 } from '@/features/users/userController';
 
 import { verifyRole } from '@/infrastructure/middleware/roleMiddleware';
@@ -13,6 +14,7 @@ import { Role } from '@prisma/client';
 
 const router = Router();
 
+router.get('/search', verifyUserSession, searchUsers);
 router.get('/', verifyUserSession, verifyRole([Role.ADMIN]), getUsers);
 router.get('/:id', verifyUserSession, getUser);
 router.post('/', verifyUserSession, createNewUser);

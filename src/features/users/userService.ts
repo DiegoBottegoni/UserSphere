@@ -88,3 +88,18 @@ export const updateUser = async (id: string, data: UpdateUserDTO): Promise<UserR
 export const deleteUser = async (id: string): Promise<void> => {
   await userRepository.delete(id);
 };
+
+export const searchUsers = async (query: string): Promise<UserResponseDTO[]> => {
+  const users = await userRepository.searchByNameOrEmail(query);
+  return users.map(user => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    isOnline: user.isOnline,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    profileUpdatedAt: user.profileUpdatedAt,
+    lastLoginAt: user.lastLoginAt,
+    lastSeenAt: user.lastSeenAt,
+  }));
+};

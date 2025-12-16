@@ -23,4 +23,5 @@ export interface UserRepository {
     }
   ): Promise<User>;
   delete(id: string): Promise<void>;
+  searchByNameOrEmail(query: string): Promise<User[]>;
 }

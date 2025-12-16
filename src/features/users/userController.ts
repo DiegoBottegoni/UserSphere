@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  searchUsers as searchUsersService,
 } from '@/features/users/userService';
 import { CreateUserDTO, UpdateUserDTO } from '@/domain/users/dto';
 import { BadRequestError } from '@/infrastructure/errors/BadRequestError';
@@ -18,8 +19,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
 
     const user = await getUserById(id);
     return res.json(user);
-  } catch (err: any) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (err) {
     next(err);
     return;
   }
@@ -29,8 +29,7 @@ export const getUsers = async (_req: Request, res: Response, next: NextFunction)
   try {
     const users = await getAllUsers();
     res.json(users);
-  } catch (err: any) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (err) {
     next(err);
     return;
   }
@@ -41,8 +40,7 @@ export const createNewUser = async (req: Request, res: Response, next: NextFunct
     const data: CreateUserDTO = req.body;
     const user = await createUser(data);
     res.status(201).json(user);
-  } catch (err: any) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (err) {
     next(err);
     return;
   }
@@ -66,8 +64,7 @@ export const updateExistingUser = async (req: Request, res: Response, next: Next
     });
 
     return res.json(updatedUser);
-  } catch (err: any) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (err) {
     next(err);
     return;
   }
@@ -86,8 +83,26 @@ export const removeUser = async (req: Request, res: Response, next: NextFunction
 
     await deleteUser(id);
     return res.status(204).send();
-  } catch (err: any) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  } catch (err) {
+    next(err);
+    return;
+  }
+};
+
+export const searchUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { q } = req.query;
+    if (!q || typeof q !== 'string') {
+      throw new BadRequestError('Missing or invalid search query parameter "q"');
+    }
+
+    if (q.trim().length < 2) {
+      throw new BadRequestError('Search query must be at least 2 characters');
+    }
+
+    const users = await searchUsersService(q.trim());
+    return res.json(users);
+  } catch (err) {
     next(err);
     return;
   }
